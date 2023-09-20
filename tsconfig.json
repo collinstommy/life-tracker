@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "jsxFragmentFactory": "Fragment",
+    "jsxImportSource": "hono/jsx",
+    "lib": ["es2015", "dom"],
+    "types": [
+      "bun-types" // add Bun global
+    ]
+  }
+}

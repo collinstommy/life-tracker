@@ -1,0 +1,21 @@
+{
+  "scripts": {
+    "dev": "bun run --watch src/index.tsx",
+    "db:push": "drizzle-kit push:sqlite",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.1.8",
+    "better-sqlite3": "^8.6.0",
+    "classnames": "^2.3.2",
+    "dayjs": "^1.11.9",
+    "drizzle-orm": "^0.28.6",
+    "hono": "^3.6.0",
+    "prettier": "^3.0.3",
+    "zod": "^3.22.2"
+  },
+  "devDependencies": {
+    "bun-types": "^1.0.2",
+    "drizzle-kit": "^0.19.13"
+  }
+}
