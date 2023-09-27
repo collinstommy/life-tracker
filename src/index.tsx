@@ -3,17 +3,22 @@ import { Layout } from "./shared/Layout";
 import { Todo, todoApi } from "./features/todo";
 import { ScoreApp, getScoresByUser, scoreApi } from "./features/score";
 import { getCurrentDate } from "./lib/date";
-import { ActivitySection, activityApi } from "./features/activity";
+import { ActivitySection, activityApi, getActivitiesByUser } from "./features/activity";
+import { HonoApp } from './types';
+import { drizzle } from 'drizzle-orm/d1';
 
-const app = new Hono();
+const app = new Hono<HonoApp>();
 
 app.get("/", async (c) => {
-  const scores = await getScoresByUser(getCurrentDate(), "1");
+  const db = drizzle(c.env.DB);
+  const scores = await getScoresByUser(db, getCurrentDate(), "1");
+  const activities = await getActivitiesByUser(db, getCurrentDate(), "1");
+  const selectedActivities = activities.map(({ value}) => value)
   return c.html(
     <Layout>
       <Todo />
       <ScoreApp scores={scores} />
-      <ActivitySection />
+      <ActivitySection selected={selectedActivities} />
     </Layout>,
   );
 });

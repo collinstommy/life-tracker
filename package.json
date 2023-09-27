@@ -1,8 +1,10 @@
 {
   "scripts": {
-    "dev": "bun run --watch src/index.tsx",
     "db:push": "drizzle-kit push:sqlite",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "db:generate": "drizzle-kit generate:sqlite",
+    "deploy": "wrangler deploy",
+    "start": "wrangler dev"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.1.8",
@@ -11,11 +13,12 @@
     "dayjs": "^1.11.9",
     "drizzle-orm": "^0.28.6",
     "hono": "^3.6.0",
-    "prettier": "^3.0.3",
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "bun-types": "^1.0.2",
-    "drizzle-kit": "^0.19.13"
+    "@cloudflare/workers-types": "^4.20230419.0",
+    "drizzle-kit": "^0.19.13",
+    "typescript": "^5.0.4",
+    "wrangler": "^3.0.0"
   }
 }

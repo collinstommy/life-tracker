@@ -1,10 +1,11 @@
 import { Hono } from "hono";
 import { FC } from "hono/jsx";
 import cn from "classnames";
-import { db } from "../db";
 import { activity } from "../db/schema";
 import { getCurrentDate, getCurrentDateTime } from "../lib/date";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
+import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
+import { HonoApp } from "../types";
 
 const activities = [
   { id: "gaming", label: "Gaming" },
@@ -43,13 +44,29 @@ const ActivityButton: FC<{
         {
           "text-gray-500": !isSelected,
           "bg-black text-white": isSelected,
-        },
+        }
       )}
     >
       {activity?.label}
     </button>
   );
 };
+
+export async function getActivitiesByUser(
+  db: DrizzleD1Database,
+  date: string,
+  userId: string
+) {
+  const activities = await db
+    .select({
+      value: activity.value,
+      date: activity.date,
+    })
+    .from(activity)
+    .where(and(eq(activity.userId, userId), eq(activity.date, date)));
+
+  return activities;
+}
 
 export const ActivitySection: FC<{ selected: string[] }> = ({
   selected = [],
@@ -67,10 +84,11 @@ export const ActivitySection: FC<{ selected: string[] }> = ({
   );
 };
 
-export const activityApi = new Hono();
+export const activityApi = new Hono<HonoApp>();
 
 activityApi.put("/activity", async (c) => {
   const body = await c.req.parseBody();
+  const db = drizzle(c.env.DB);
 
   const id = body.id as string;
   const active = body.isSelected === "false";
@@ -90,8 +108,8 @@ activityApi.put("/activity", async (c) => {
         and(
           eq(activity.userId, "1"),
           eq(activity.date, getCurrentDate()),
-          eq(activity.value, id),
-        ),
+          eq(activity.value, id)
+        )
       );
   }
   return c.html(<ActivityButton isSelected={active} id={id} />);

@@ -1,10 +1,11 @@
 import { FC } from "hono/jsx";
 import { FrownIcon, MehIcon, SmileIcon } from "../shared/Icons";
 import { Hono } from "hono";
-import { db } from "../db";
 import { score } from "../db/schema";
 import { getCurrentDate, getCurrentDateTime } from "../lib/date";
 import { sql, and, eq } from "drizzle-orm";
+import { HonoApp } from "../types";
+import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 
 const IconButton: FC<{
   selected?: boolean;
@@ -105,11 +106,15 @@ export const ScoreApp: FC<{ scores: ScoresByUser }> = ({ scores }) => {
   );
 };
 
-export const scoreApi = new Hono();
+export const scoreApi = new Hono<HonoApp>();
 
 export type ScoresByUser = Awaited<ReturnType<typeof getScoresByUser>>;
 
-export async function getScoresByUser(date: string, userId: string) {
+export async function getScoresByUser(
+  db: DrizzleD1Database,
+  date: string,
+  userId: string
+) {
   const scores = await db
     .select({
       type: score.type,
@@ -125,8 +130,10 @@ export async function getScoresByUser(date: string, userId: string) {
 
 scoreApi.put("/score", async (c) => {
   const body = await c.req.parseBody();
+  c.env;
   const value = +body.value;
   const type = body.type as ScoreType;
+  const db = drizzle(c.env.DB);
 
   await db.insert(score).values({
     userId: "1",

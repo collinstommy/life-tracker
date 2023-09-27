@@ -15,7 +15,7 @@ export const score = sqliteTable(
     userIdx: index("userId_score_idx").on(table.userId),
     type: index("type_idx").on(table.type),
     date: index("date_idx").on(table.date),
-  }),
+  })
 );
 
 export const todo = sqliteTable(
@@ -28,20 +28,20 @@ export const todo = sqliteTable(
   },
   (table) => ({
     userIdx: index("userId_idx").on(table.userId),
-  }),
+  })
 );
 
 export const activity = sqliteTable(
   "activity",
   {
     id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
-    value: text("value"),
-    userId: text("userId"),
-    date: text("date"),
-    createdOn: text("created_on"),
+    value: text("value").notNull(),
+    userId: text("userId").notNull(),
+    date: text("date").notNull(),
+    createdOn: text("created_on").notNull(),
   },
   (table) => ({
     userIdx: index("userId_activity_idx").on(table.userId),
     date: index("date_activity_idx").on(table.date),
-  }),
+  })
 );

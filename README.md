@@ -1,8 +1,16 @@
+https://d1-tutorial.tomascollins.workers.dev/
+
+Generate migration file
 ```
-bun install
-bun run dev
+npm run db:migrate
 ```
 
+Setup db (run migration)
 ```
-open http://localhost:3000
+wrangler d1 execute hello-world --local --file=./schema.sql
+```
+
+Run sql
+```
+wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 ```
