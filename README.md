@@ -14,3 +14,15 @@ Run sql
 ```
 wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 ```
+
+## ToDo
+
+### Chores
+- [ ] put drizzle into middleware?
+- [x] filter by day of the week
+- [ ] auth + login
+
+### Features
+- [ ] add fitness tracking
+- [ ] food diary
+- [ ] hard 75

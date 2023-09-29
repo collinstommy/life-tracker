@@ -2,7 +2,7 @@ import { FC } from "hono/jsx";
 import { FrownIcon, MehIcon, SmileIcon } from "../shared/Icons";
 import { Hono } from "hono";
 import { score } from "../db/schema";
-import { getCurrentDate, getCurrentDateTime } from "../lib/date";
+import { getCurrentDateTime } from "../lib/date";
 import { sql, and, eq } from "drizzle-orm";
 import { HonoApp } from "../types";
 import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
@@ -18,6 +18,7 @@ const IconButton: FC<{
   return (
     <button
       class={`${selected ? "text-black" : "text-gray-400"}`}
+      hx-include="[name='currentDate']"
       hx-put="/score"
       hx-vals={vals}
       hx-target={`#${formId}`}
@@ -68,10 +69,10 @@ const Score: FC<{
 
 type ScoreType = "mood" | "sleep";
 
-const ScoreSection: FC<{ selectedValue?: number; type: ScoreType }> = ({
-  selectedValue,
-  type,
-}) => {
+const ScoreSection: FC<{
+  selectedValue?: number;
+  type: ScoreType;
+}> = ({ selectedValue, type }) => {
   if (type === "sleep") {
     return (
       <Score
@@ -92,7 +93,8 @@ const ScoreSection: FC<{ selectedValue?: number; type: ScoreType }> = ({
   );
 };
 
-export const ScoreApp: FC<{ scores: ScoresByUser }> = ({ scores }) => {
+export const ScoreApp = async (db: DrizzleD1Database, currentDate: string) => {
+  const scores = await getScoresByUser(db, currentDate, "1");
   function getValue(scoreType: ScoreType) {
     const match = scores?.find(({ type }) => type === scoreType);
     return match?.quality;
@@ -113,7 +115,7 @@ export type ScoresByUser = Awaited<ReturnType<typeof getScoresByUser>>;
 export async function getScoresByUser(
   db: DrizzleD1Database,
   date: string,
-  userId: string
+  userId: string,
 ) {
   const scores = await db
     .select({
@@ -129,19 +131,22 @@ export async function getScoresByUser(
 }
 
 scoreApi.put("/score", async (c) => {
-  const body = await c.req.parseBody();
-  c.env;
+  const body = await c.req.parseBody<{
+    currentDate: string;
+    value: string;
+    type: ScoreType;
+  }>();
+
   const value = +body.value;
-  const type = body.type as ScoreType;
   const db = drizzle(c.env.DB);
 
   await db.insert(score).values({
     userId: "1",
     quality: +value,
-    date: getCurrentDate(),
-    type,
+    date: body.currentDate,
+    type: body.type,
     createdOn: getCurrentDateTime(),
   });
 
-  return c.html(<ScoreSection selectedValue={+body.value} type={type} />);
+  return c.html(<ScoreSection selectedValue={+body.value} type={body.type} />);
 });

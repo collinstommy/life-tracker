@@ -1,26 +1,40 @@
 import { Hono } from "hono";
 import { Layout } from "./shared/Layout";
-import { Todo, todoApi } from "./features/todo";
-import { ScoreApp, getScoresByUser, scoreApi } from "./features/score";
+import { todoApi } from "./features/todo";
+import { ScoreApp, scoreApi } from "./features/score";
+import { ActivityApp, activityApi } from "./features/activity";
+import { HonoApp } from "./types";
+import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
+import { DayList } from "./features/dayList";
 import { getCurrentDate } from "./lib/date";
-import { ActivitySection, activityApi, getActivitiesByUser } from "./features/activity";
-import { HonoApp } from './types';
-import { drizzle } from 'drizzle-orm/d1';
 
 const app = new Hono<HonoApp>();
+const generateApp = async (db: DrizzleD1Database, date: string) => {
+  const scores = await ScoreApp(db, date);
+  const activities = await ActivityApp(db, date);
+
+  return (
+    <Layout>
+      <input name="currentDate" value={date} hidden />
+      <DayList current={date} />
+      {/* <Todo /> */}
+      {scores}
+      {activities}
+    </Layout>
+  );
+};
 
 app.get("/", async (c) => {
   const db = drizzle(c.env.DB);
-  const scores = await getScoresByUser(db, getCurrentDate(), "1");
-  const activities = await getActivitiesByUser(db, getCurrentDate(), "1");
-  const selectedActivities = activities.map(({ value}) => value)
-  return c.html(
-    <Layout>
-      <Todo />
-      <ScoreApp scores={scores} />
-      <ActivitySection selected={selectedActivities} />
-    </Layout>,
-  );
+  const app = await generateApp(db, getCurrentDate());
+  return c.html(app);
+});
+
+app.get("/day/:date", async (c) => {
+  const db = drizzle(c.env.DB);
+  const date = c.req.param("date");
+  const app = await generateApp(db, date);
+  return c.html(app);
 });
 
 app.route("/", todoApi);
