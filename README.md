@@ -21,6 +21,7 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 - [ ] put drizzle into middleware?
 - [x] filter by day of the week
 - [ ] auth + login
+- [ ] styling - buttons + container + daylist
 
 ### Features
 - [ ] add fitness tracking

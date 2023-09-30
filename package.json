@@ -1,18 +1,35 @@
 {
+  "name": "my-lib",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "main": "./src/client/clerk.ts",
+  "module": "./dist/my-lib.js",
+  "exports": {
+    ".": {
+      "import": "./dist/my-lib.js",
+      "require": "./dist/my-lib.umd.cjs"
+    }
+  },
   "scripts": {
     "db:push": "drizzle-kit push:sqlite",
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate:sqlite",
     "deploy": "wrangler deploy",
-    "start": "wrangler dev  --live-reload"
+    "start": "wrangler dev  --live-reload",
+    "build": "vite build"
   },
   "dependencies": {
+    "@clerk/backend": "^0.29.3",
+    "@clerk/clerk-js": "^4.58.2",
     "@hono/zod-validator": "^0.1.8",
     "better-sqlite3": "^8.6.0",
     "clsx": "^2.0.0",
     "dayjs": "^1.11.9",
     "drizzle-orm": "^0.28.6",
     "hono": "^3.6.0",
+    "vite": "^4.4.9",
     "zod": "^3.22.2"
   },
   "devDependencies": {

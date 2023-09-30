@@ -7,8 +7,11 @@ import { HonoApp } from "./types";
 import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { DayList } from "./features/dayList";
 import { getCurrentDate } from "./lib/date";
+import { auth } from "./features/auth";
 
 const app = new Hono<HonoApp>();
+app.use("*", auth);
+
 const generateApp = async (db: DrizzleD1Database, date: string) => {
   const scores = await ScoreApp(db, date);
   const activities = await ActivityApp(db, date);

@@ -1,2 +1,4 @@
 node_modules/
 .wrangler
+.env
+out.js

@@ -1,6 +1,4 @@
 import type { score, todo, activity } from "./schema";
-import { Database } from "bun:sqlite";
-import { drizzle } from "drizzle-orm/d1";
 
 export type Todo = typeof todo.$inferSelect;
 
