@@ -1,11 +1,18 @@
 import { FC } from "hono/jsx";
-import { FrownIcon, MehIcon, SmileIcon } from "../shared/Icons";
+import {
+  FaceCryIcon,
+  FaceGrinIcon,
+  FrownIcon,
+  MehIcon,
+  SmileIcon,
+} from "../shared/Icons";
 import { Hono } from "hono";
 import { score } from "../db/schema";
 import { getCurrentDateTime } from "../lib/date";
 import { sql, and, eq } from "drizzle-orm";
 import { HonoApp } from "../types";
 import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
+import clsx from "clsx";
 
 const IconButton: FC<{
   selected?: boolean;
@@ -17,7 +24,7 @@ const IconButton: FC<{
 
   return (
     <button
-      class={`${selected ? "text-black" : "text-gray-400"}`}
+      class={clsx(selected ? "text-black" : "text-gray-400", "h-8 w-8")}
       hx-include="[name='currentDate']"
       hx-put="/score"
       hx-vals={vals}
@@ -38,30 +45,22 @@ const Score: FC<{
     <div id={formId}>
       <h2 class="py-1 text-2xl font-semibold">{heading}</h2>
       <form class="flex gap-2">
-        <IconButton
-          value={1}
-          selected={selectedValue === 1}
-          formId={formId}
-          type={type}
-        >
-          <FrownIcon />
-        </IconButton>
-        <IconButton
-          value={2}
-          selected={selectedValue === 2}
-          formId={formId}
-          type={type}
-        >
-          <MehIcon />
-        </IconButton>
-        <IconButton
-          value={3}
-          selected={selectedValue === 3}
-          formId={formId}
-          type={type}
-        >
-          <SmileIcon />
-        </IconButton>
+        {[
+          { value: 5, Icon: FaceGrinIcon },
+          { value: 4, Icon: SmileIcon },
+          { value: 3, Icon: MehIcon },
+          { value: 2, Icon: FrownIcon },
+          { value: 1, Icon: FaceCryIcon },
+        ].map(({ value, Icon }) => (
+          <IconButton
+            value={value}
+            selected={selectedValue === value}
+            formId={formId}
+            type={type}
+          >
+            <Icon />
+          </IconButton>
+        ))}
       </form>
     </div>
   );
