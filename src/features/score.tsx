@@ -7,7 +7,6 @@ import {
   SmileIcon,
 } from "../shared/Icons";
 import { Hono } from "hono";
-import { score } from "../db/schema";
 import { getCurrentDateTime } from "../lib/date";
 import { sql, and, eq } from "drizzle-orm";
 import { HonoApp } from "../types";
@@ -68,7 +67,7 @@ const Score: FC<{
 
 type ScoreType = "mood" | "sleep";
 
-const ScoreSection: FC<{
+export const ScoreSection: FC<{
   selectedValue?: number;
   type: ScoreType;
 }> = ({ selectedValue, type }) => {
