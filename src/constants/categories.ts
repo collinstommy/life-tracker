@@ -24,7 +24,6 @@ export const categories = [
       "good sleep",
       "bad seep",
       "sleep walking",
-      "too hot",
       "woke early",
       "slept in",
       "early bed",

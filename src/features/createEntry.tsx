@@ -1,16 +1,11 @@
 import { FC } from "hono/jsx";
-import {
-  FaceCryIcon,
-  FaceGrinIcon,
-  FrownIcon,
-  MehIcon,
-  SmileIcon,
-} from "../shared/Icons";
 import { HonoApp } from "../types";
 import { Hono } from "hono";
 import { getCurrentDateTime, toDayOfWeek } from "../lib/date";
 import { activity, entry } from "../db/schema";
 import { categories } from "../constants/categories";
+import { Layout } from "../shared/Layout";
+import { moodList } from "../constants/mood";
 
 export const createEntryApi = new Hono<HonoApp>();
 
@@ -41,7 +36,7 @@ const IconButton: FC<{
 export const CreateEntry: FC = () => {
   const selectedValue = 1;
   return (
-    <form class="flex flex-col gap-6 py-4">
+    <form class="group flex flex-col gap-6 py-4">
       <div class="flex flex-col gap-2 rounded-md bg-white p-4 shadow-sm shadow-gray-200">
         <label data-hx="date" id="current-date" class="font-bold">
           Today, October 2nd
@@ -60,13 +55,7 @@ export const CreateEntry: FC = () => {
         <li class="flex flex-col rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200">
           <h2 class="font-semibold">Mood</h2>
           <ul class="flex justify-center gap-4 pt-3">
-            {[
-              { value: 5, Icon: FaceGrinIcon },
-              { value: 4, Icon: SmileIcon },
-              { value: 3, Icon: MehIcon },
-              { value: 2, Icon: FrownIcon },
-              { value: 1, Icon: FaceCryIcon },
-            ].map(({ value, Icon }) => (
+            {moodList.map(({ value, Icon }) => (
               <li>
                 <IconButton selected={selectedValue === value} value={value}>
                   <Icon />
@@ -99,12 +88,25 @@ export const CreateEntry: FC = () => {
           </li>
         ))}
       </ul>
-      <button hx-post="/new" hx-swap="none" hx-validate="true" hx-r>
+      <button
+        hx-post="/new"
+        hx-swap="none"
+        hx-validate="true"
+        class="group-invalid:bg-yellow-400"
+      >
         Save
       </button>
     </form>
   );
 };
+
+createEntryApi.get("/new", async (c) => {
+  return c.html(
+    <Layout>
+      <CreateEntry />
+    </Layout>,
+  );
+});
 
 createEntryApi.post("/new/get-date", async (c) => {
   const body = await c.req.parseBody<{
@@ -126,29 +128,26 @@ createEntryApi.post("/new", async (c) => {
       .insert(entry)
       .values({
         date,
+        mood: +mood,
+        userId: "1",
       })
       .returning();
 
     const metadata = {
       createdOn: getCurrentDateTime(),
       userId: "1",
-      category: "mood",
       date,
       entryId: createdEntry[0].id,
     };
 
-    if (mood) {
-      await tx.insert(activity).values({
-        value: mood,
-        ...metadata,
-      });
+    if (activities.length) {
+      await tx.insert(activity).values(
+        activities.map((activity) => ({
+          value: activity,
+          ...metadata,
+        })),
+      );
     }
-    await tx.insert(activity).values(
-      activities.map((activity) => ({
-        value: activity,
-        ...metadata,
-      })),
-    );
   });
   c.header("HX-Location", "/");
   return c.body(null);

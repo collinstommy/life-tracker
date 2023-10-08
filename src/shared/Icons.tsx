@@ -1,4 +1,38 @@
-export const SmileIcon = ({ className }: { className?: string }) => (
+import { FC } from "hono/jsx";
+
+type IconProps = { className?: string };
+
+export const EditIcon: FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="32"
+    height="32"
+    viewBox="0 0 24 24"
+    class={className}
+  >
+    <path
+      fill="currentColor"
+      d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a.996.996 0 0 0 0-1.41l-2.34-2.34a.996.996 0 0 0-1.41 0l-1.83 1.83l3.75 3.75l1.83-1.83z"
+    />
+  </svg>
+);
+
+export const DeleteIcon: FC<IconProps> = ({ className }) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="32"
+    height="32"
+    viewBox="0 0 24 24"
+    class={className}
+  >
+    <path
+      fill="currentColor"
+      d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
+    />
+  </svg>
+);
+
+export const SmileIcon: FC<IconProps> = ({ className }) => (
   <svg
     class={className}
     xmlns="http://www.w3.org/2000/svg"
@@ -11,8 +45,12 @@ export const SmileIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-export const FrownIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const FrownIcon: FC<IconProps> = ({ className }) => (
+  <svg
+    class={className}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 512 512"
+  >
     <path
       fill="currentColor"
       d="M464 256a208 208 0 1 0-416 0a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0a256 256 0 1 1-512 0zm174.6 128.1c-4.5 12.5-18.2 18.9-30.7 14.4s-18.9-18.2-14.4-30.7C146.9 319.4 198.9 288 256 288s109.1 31.4 126.6 79.9c4.5 12.5-2 26.2-14.4 30.7s-26.2-2-30.7-14.4c-9.3-25.7-40.3-48.2-81.5-48.2s-72.2 22.5-81.4 48.1zM144.4 208a32 32 0 1 1 64 0a32 32 0 1 1-64 0zm192-32a32 32 0 1 1 0 64a32 32 0 1 1 0-64z"
@@ -20,8 +58,12 @@ export const FrownIcon = () => (
   </svg>
 );
 
-export const MehIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const MehIcon: FC<IconProps> = ({ className }) => (
+  <svg
+    class={className}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 512 512"
+  >
     <path
       fill="currentColor"
       d="M464 256a208 208 0 1 1-416 0a208 208 0 1 1 416 0zM256 0a256 256 0 1 0 0 512a256 256 0 1 0 0-512zm-79.6 240a32 32 0 1 0 0-64a32 32 0 1 0 0 64zm192-32a32 32 0 1 0-64 0a32 32 0 1 0 64 0zM184 328c-13.3 0-24 10.7-24 24s10.7 24 24 24h144c13.3 0 24-10.7 24-24s-10.7-24-24-24H184z"
@@ -29,8 +71,12 @@ export const MehIcon = () => (
   </svg>
 );
 
-export const FaceCryIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const FaceCryIcon: FC<IconProps> = ({ className }) => (
+  <svg
+    class={className}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 512 512"
+  >
     <path
       fill="currentColor"
       d="M400 406.1V288c0-13.3-10.7-24-24-24s-24 10.7-24 24v152.6c-28.7 15-61.4 23.4-96 23.4s-67.3-8.5-96-23.4V288c0-13.3-10.7-24-24-24s-24 10.7-24 24v118.1C72.6 368.2 48 315 48 256c0-114.9 93.1-208 208-208s208 93.1 208 208c0 59-24.6 112.2-64 150.1zM256 512a256 256 0 1 0 0-512a256 256 0 1 0 0 512zm-96.4-292c10.6 0 19.9 3.8 25.4 9.7c7.6 8.1 20.2 8.5 28.3.9s8.5-20.2.9-28.3C199.7 186.8 179 180 159.6 180s-40.1 6.8-54.6 22.3c-7.6 8.1-7.1 20.7.9 28.3s20.7 7.1 28.3-.9c5.5-5.8 14.8-9.7 25.4-9.7zm166.6 9.7c5.5-5.8 14.8-9.7 25.4-9.7s19.9 3.8 25.4 9.7c7.6 8.1 20.2 8.5 28.3.9s8.5-20.2.9-28.3C391.7 186.8 371 180 351.6 180s-40.1 6.8-54.6 22.3c-7.6 8.1-7.1 20.7.9 28.3s20.7 7.1 28.3-.9zM208 320v32c0 26.5 21.5 48 48 48s48-21.5 48-48v-32c0-26.5-21.5-48-48-48s-48 21.5-48 48z"
@@ -38,8 +84,12 @@ export const FaceCryIcon = () => (
   </svg>
 );
 
-export const FaceGrinIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+export const FaceGrinIcon: FC<IconProps> = ({ className }) => (
+  <svg
+    class={className}
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 512 512"
+  >
     <path
       fill="currentColor"
       d="M464 256a208 208 0 1 0-416 0a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0a256 256 0 1 1-512 0zm349.5 52.4c18.7-4.4 35.9 12 25.5 28.1c-24.6 38.1-68.7 63.5-119.1 63.5s-94.5-25.4-119.1-63.5c-10.4-16.1 6.8-32.5 25.5-28.1c28.9 6.8 60.5 10.5 93.6 10.5s64.7-3.7 93.6-10.5zm-131.9-79.6l-.2-.2c-.2-.2-.4-.5-.7-.9c-.6-.8-1.6-2-2.8-3.4c-2.5-2.8-6-6.6-10.2-10.3c-8.8-7.8-18.8-14-27.7-14s-18.9 6.2-27.7 14c-4.2 3.7-7.7 7.5-10.2 10.3c-1.2 1.4-2.2 2.6-2.8 3.4c-.3.4-.6.7-.7.9l-.2.2c-2.1 2.8-5.7 3.9-8.9 2.8s-5.5-4.1-5.5-7.6c0-17.9 6.7-35.6 16.6-48.8c9.8-13 23.9-23.2 39.4-23.2s29.6 10.2 39.4 23.2c9.9 13.2 16.6 30.9 16.6 48.8c0 3.4-2.2 6.5-5.5 7.6s-6.9 0-8.9-2.8zm160 0l-.2-.2c-.2-.2-.4-.5-.7-.9c-.6-.8-1.6-2-2.8-3.4c-2.5-2.8-6-6.6-10.2-10.3c-8.8-7.8-18.8-14-27.7-14s-18.9 6.2-27.7 14c-4.2 3.7-7.7 7.5-10.2 10.3c-1.2 1.4-2.2 2.6-2.8 3.4c-.3.4-.6.7-.7.9l-.2.2c-2.1 2.8-5.7 3.9-8.9 2.8s-5.5-4.1-5.5-7.6c0-17.9 6.7-35.6 16.6-48.8c9.8-13 23.9-23.2 39.4-23.2s29.6 10.2 39.4 23.2c9.9 13.2 16.6 30.9 16.6 48.8c0 3.4-2.2 6.5-5.5 7.6s-6.9 0-8.9-2.8z"

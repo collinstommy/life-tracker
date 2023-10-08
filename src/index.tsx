@@ -15,7 +15,8 @@ app.use("*", async (c, next) => {
 
 const generateApp = async (db: DrizzleD1Database, date: string) => {
   // const scores = await ScoreApp(db, date);
-  // const activities = await ActivityApp(db, date);
+  // const scores = await ScoreApp(db, date);
+  const entries = await Entries(db);
 
   return (
     <Layout>
@@ -23,7 +24,7 @@ const generateApp = async (db: DrizzleD1Database, date: string) => {
       {/* <DayList current={date} /> */}
       {/* {scores} */}
       {/* {activities} */}
-      <Entries />
+      {entries}
     </Layout>
   );
 };
@@ -32,14 +33,6 @@ app.get("/", async (c) => {
   const db = drizzle(c.env.DB);
   const app = await generateApp(db, getCurrentDate());
   return c.html(app);
-});
-
-app.get("/new", async (c) => {
-  return c.html(
-    <Layout>
-      <CreateEntry />
-    </Layout>,
-  );
 });
 
 app.get("/day/:date", async (c) => {
