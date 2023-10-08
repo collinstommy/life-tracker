@@ -11,7 +11,7 @@ import { categories } from "../../constants/categories";
 import { Layout } from "../../shared/Layout";
 import { moodList } from "../../constants/mood";
 import { and, eq } from "drizzle-orm";
-import { DeleteIcon } from "../../shared/Icons";
+import { BackIcon, DeleteIcon } from "../../shared/Icons";
 
 export const entryApi = new Hono<HonoApp>();
 
@@ -119,6 +119,12 @@ export const Entry: FC<{
       </ul>
       {entryId ? (
         <div class="flex w-full gap-2">
+          <a
+            href="/"
+            class="rounded bg-black px-6 py-2 text-center text-white "
+          >
+            <BackIcon className="w-6" />
+          </a>
           <button
             hx-put="/entry"
             hx-swap="none"
@@ -131,21 +137,29 @@ export const Entry: FC<{
             hx-delete={`/entry/${entryId}`}
             hx-swap="none"
             hx-confirm="Are you sure you want to delete this entry?"
-            class="rounded bg-black px-8 text-center text-white"
+            class="rounded bg-black px-6 text-center text-white"
           >
             <DeleteIcon className="w-6" />
           </button>
         </div>
       ) : (
-        <button
-          hx-target="form"
-          hx-post="/entry"
-          hx-swap="outerHTML"
-          hx-validate="true"
-          class="rounded bg-black px-8 py-2 text-center text-white group-invalid:bg-gray-400"
-        >
-          Save
-        </button>
+        <div class="flex w-full gap-2">
+          <a
+            href="/"
+            class="rounded bg-black px-6 py-2 text-center text-white "
+          >
+            <BackIcon className="w-6" />
+          </a>
+          <button
+            hx-target="form"
+            hx-post="/entry"
+            hx-swap="outerHTML"
+            hx-validate="true"
+            class="flex-1 rounded bg-black px-8 py-2 text-center text-white group-invalid:bg-gray-400"
+          >
+            Save
+          </button>
+        </div>
       )}
     </form>
   );
@@ -156,14 +170,14 @@ entryApi.get("/edit/:entryId", async (c) => {
   const entries = await c
     .get("db")
     .select({
-      mood: entryTable.id,
+      mood: entryTable.mood,
       date: entryTable.date,
       value: activityTable.value,
     })
     .from(entryTable)
     .leftJoin(activityTable, eq(entryTable.id, activityTable.entryId))
-    .where(eq(entryTable.id, +entryId));
-  console.log(JSON.stringify(entries));
+    .where(and(eq(entryTable.id, +entryId), eq(entryTable.userId, "1")));
+
   const { mood, date } = entries[0];
   const activities = entries.map(({ value }) => value).filter(Boolean);
 
@@ -210,6 +224,7 @@ entryApi.delete("/entry/:entryId", async (c) => {
     c.status(401);
     return c.body(null);
   }
+
   await c
     .get("db")
     .delete(activityTable)
@@ -275,6 +290,20 @@ entryApi.put("/entry", async (c) => {
     entryId: string;
   }>();
 
+  // ToDo: share between with delete
+  const entry = await c
+    .get("db")
+    .select({ userId: entryTable.userId })
+    .from(entryTable)
+    .where(eq(entryTable.id, +entryId));
+
+  if (entry[0]?.userId !== "1") {
+    c.status(401);
+    return c.body(null);
+  }
+
+  const activities = Object.keys(rest);
+
   await c.var.db.transaction(async (tx) => {
     await tx
       .update(entryTable)
@@ -283,6 +312,24 @@ entryApi.put("/entry", async (c) => {
         mood: +mood,
       })
       .where(eq(entryTable.id, +entryId));
+
+    const metadata = {
+      createdOn: getCurrentDateTime(),
+      userId: "1",
+      date,
+      entryId: +entryId,
+    };
+
+    await tx.delete(activityTable).where(eq(activityTable.entryId, +entryId));
+
+    if (activities.length) {
+      await tx.insert(activityTable).values(
+        activities.map((activity) => ({
+          value: activity,
+          ...metadata,
+        })),
+      );
+    }
   });
   c.header("HX-Location", "/");
   return c.body(null);

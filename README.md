@@ -21,11 +21,11 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 - [x] put drizzle into middleware?
 - [x] filter by day of the week
 - [ ] auth + login
-- [ ] validation for create entry and edit entry
+- [x] validation for create entry and edit entry
 
 ### Features
 - [x] edit existing entry
-- [ ] delete entry
+- [x] delete entry
 - [ ] add fitness tracking
 - [ ] sort activities by category on entry card
 - [ ] settings to add activities
