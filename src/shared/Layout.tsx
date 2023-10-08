@@ -10,7 +10,9 @@ export const Layout: FC = ({ children }) => {
         <script src="https://cdn.tailwindcss.com"></script>
         <title>ToDo App</title>
       </head>
-      <body class="border bg-gray-200 px-4">{children}</body>
+      <body class="border bg-gray-200 px-4" hx-boost="true">
+        {children}
+      </body>
     </html>
   );
 };

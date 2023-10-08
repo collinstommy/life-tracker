@@ -1,7 +1,7 @@
 import { DrizzleD1Database } from "drizzle-orm/d1";
 import { sql } from "drizzle-orm";
-import { toDayOfWeek } from "../lib/date";
-import { moodList } from "../constants/mood";
+import { toDayOfWeek } from "../../lib/date";
+import { moodList } from "../../constants/mood";
 
 type Entry = {
   id: number;
@@ -12,25 +12,31 @@ type Entry = {
 
 const renderEntryCard = (entry: Entry | undefined) => {
   if (!entry) return null;
+  console.log(entry);
   const Icon = moodList.find((mood) => mood.value === entry.mood)?.Icon;
 
   return (
-    <li class="group flex justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200">
-      <div class=" flex gap-3">
-        <div>{Icon && <Icon className="w-14" />}</div>
-        <div class="flex flex-col">
-          <h2 class="text-sm uppercase text-gray-500">
-            {toDayOfWeek(entry.date)}
-          </h2>
-          <ul class="flex flex-wrap gap-2 py-2">
-            {entry.activities.map((activity) => (
-              <li class="flex  items-center rounded-md bg-gray-300 px-2 text-sm">
-                {activity}
-              </li>
-            ))}
-          </ul>
+    <li>
+      <a
+        href={`/edit/${entry.id}`}
+        class="group flex cursor-pointer justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200"
+      >
+        <div class=" flex gap-3">
+          <div>{Icon && <Icon className="w-14" />}</div>
+          <div class="flex flex-col">
+            <h2 class="text-sm uppercase text-gray-500">
+              {toDayOfWeek(entry.date)}
+            </h2>
+            <ul class="flex flex-wrap gap-2 py-2">
+              {entry.activities.map((activity) => (
+                <li class="flex  items-center rounded-md bg-gray-300 px-2 text-sm">
+                  {activity}
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
+      </a>
     </li>
   );
 };
@@ -44,6 +50,7 @@ export const Entries = async (db: DrizzleD1Database) => {
   `;
 
   type Row = {
+    id: number;
     entry_id: number;
     category: string;
     value: string;
@@ -60,12 +67,13 @@ export const Entries = async (db: DrizzleD1Database) => {
       const existing = entryMap.get(row.entry_id)!;
       entryMap.set(row.entry_id, {
         ...existing,
+        id: row.id,
         activities: [...existing.activities, row.value],
       });
     } else {
       entryMap.set(row.entry_id, {
         date: row.date,
-        id: row.entry_id,
+        id: row.id,
         mood: row.mood,
         activities: [row.value],
       });
@@ -74,11 +82,7 @@ export const Entries = async (db: DrizzleD1Database) => {
 
   return (
     <div class="flex flex-col py-2">
-      <a
-        hx-boost="true"
-        href="/new"
-        class="rounded bg-black px-8 py-2 text-center text-white"
-      >
+      <a href="/new" class="rounded bg-black px-8 py-2 text-center text-white">
         Add Entry +
       </a>
       <ul class="grid w-full gap-3 py-4">
