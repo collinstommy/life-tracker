@@ -15,6 +15,7 @@ export const DayList: FC<{ current: string }> = ({ current }) => {
             {dayList.map((day) => (
               <div class="flex flex-col">
                 <a
+                  hx-boost="true"
                   href={`/day/${day}`}
                   class={clsx(
                     "flex w-full justify-start",
