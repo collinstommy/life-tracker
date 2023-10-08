@@ -3,8 +3,8 @@ import { Layout } from "./shared/Layout";
 // import { ActivityApp, activityApi } from "./features/activity";
 import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { getCurrentDate } from "./lib/date";
-import { Entries } from "./features/entries";
-import { CreateEntry, createEntryApi } from "./features/createEntry";
+import { Entries } from "./features/entry/entries";
+import { entryApi } from "./features/entry/singleEntry";
 import { app } from "./app";
 
 app.use("*", async (c, next) => {
@@ -44,6 +44,6 @@ app.get("/day/:date", async (c) => {
 
 // app.route("/", todoApi);
 // app.route("/", scoreApi);
-app.route("/", createEntryApi);
+app.route("/", entryApi);
 
 export default app;
