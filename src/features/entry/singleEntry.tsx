@@ -15,6 +15,14 @@ import { BackIcon, DeleteIcon } from "../../shared/Icons";
 
 export const entryApi = new Hono<HonoApp>();
 
+const Card: FC = ({ children }) => (
+  <li class="flex flex-col rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200 ">
+    {children}
+  </li>
+);
+
+const Heading: FC = ({ children }) => <h2 class="font-semibold">{children}</h2>;
+
 const IconButton: FC<{
   value: number;
   selected?: boolean;
@@ -39,6 +47,36 @@ const IconButton: FC<{
       >
         {children}
       </label>
+    </div>
+  );
+};
+const FoodList: FC<{ foodList?: string[] }> = ({ foodList = [] }) => {
+  console.log(foodList);
+  return (
+    <div id="food">
+      <input hidden name="foodList" value={foodList.join(",")} />
+      <ul class="flex flex-wrap gap-2 pt-3">
+        {foodList.map((food) => (
+          <li>
+            <input
+              type="checkbox"
+              id={food}
+              name={food}
+              class="peer hidden"
+              hx-delete="/entry/food-item"
+              hx-params={`${food},foodList`}
+              hx-target="#food"
+              hx-swap="outerHTML"
+            />
+            <label
+              for={food}
+              class="flex items-center rounded-md bg-black  px-3 py-1 text-sm text-white"
+            >
+              {food}
+            </label>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };
@@ -67,7 +105,7 @@ export const Entry: FC<{
           type="date"
           id="current-date"
           name="date"
-          hx-post="/new/get-date"
+          hx-post="/get-date"
           hx-target='[data-hx="date"]'
           class="border px-2 py-1 invalid:border-red-600"
           value={date}
@@ -75,8 +113,8 @@ export const Entry: FC<{
         />
       </div>
       <ul class="flex flex-col gap-4">
-        <li class="flex flex-col rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200 ">
-          <h2 class="font-semibold">Mood</h2>
+        <Card>
+          <Heading>Mood</Heading>
           <ul class="flex justify-center gap-4 pt-3">
             {moodList.map(({ value, Icon }) => (
               <li>
@@ -86,15 +124,17 @@ export const Entry: FC<{
               </li>
             ))}
           </ul>
-          {errors.includes("mood") && (
+          {errors.includes("mood") ? (
             <p id="error-mood" class="py-1 text-red-500">
               Please select your mood.
             </p>
+          ) : (
+            <span />
           )}
-        </li>
+        </Card>
         {categories.map(({ name, options }) => (
-          <li class="flex flex-col rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200">
-            <h2 class="font-semibold">{name}</h2>
+          <Card>
+            <Heading>{name}</Heading>
             <ul class="flex flex-wrap gap-2 pt-3">
               {options.map((option) => (
                 <li>
@@ -114,8 +154,24 @@ export const Entry: FC<{
                 </li>
               ))}
             </ul>
-          </li>
+          </Card>
         ))}
+        <Card>
+          <Heading>Nutrition</Heading>
+          <div class="flex gap-2">
+            <input
+              name="foodItem"
+              class="focus-visible: ring-violet-30 mt-3 flex-1 border px-3 py-2"
+              hx-include="[name='foodList']"
+              hx-post="/entry/food-item"
+              hx-target="#food"
+              hx-swap="outerHTML"
+              hx-trigger="keyup[keyCode==13]"
+              _="on htmx:afterRequest set my value to ''"
+            />
+          </div>
+          <FoodList />
+        </Card>
       </ul>
       {entryId ? (
         <div class="flex w-full gap-2">
@@ -126,6 +182,7 @@ export const Entry: FC<{
             <BackIcon className="w-6" />
           </a>
           <button
+            type="button"
             hx-put="/entry"
             hx-swap="none"
             hx-validate="true"
@@ -134,6 +191,7 @@ export const Entry: FC<{
             Update
           </button>
           <button
+            type="button"
             hx-delete={`/entry/${entryId}`}
             hx-swap="none"
             hx-confirm="Are you sure you want to delete this entry?"
@@ -151,6 +209,7 @@ export const Entry: FC<{
             <BackIcon className="w-6" />
           </a>
           <button
+            type="button"
             hx-target="form"
             hx-post="/entry"
             hx-swap="outerHTML"
@@ -165,6 +224,7 @@ export const Entry: FC<{
   );
 };
 
+// Views
 entryApi.get("/edit/:entryId", async (c) => {
   const entryId = c.req.param("entryId");
   const entries = await c
@@ -201,50 +261,49 @@ entryApi.get("/new", async (c) => {
   );
 });
 
+// Partials
 entryApi.get("/validate/mood", (c) => {
   return c.body(null);
 });
 
-entryApi.post("/new/get-date", async (c) => {
+entryApi.post("/get-date", async (c) => {
   const body = await c.req.parseBody<{
     date: string;
   }>();
   return c.html(toDayOfWeek(body.date));
 });
 
-entryApi.delete("/entry/:entryId", async (c) => {
-  const entryId = c.req.param("entryId");
-  const entry = await c
-    .get("db")
-    .select({ userId: entryTable.userId })
-    .from(entryTable)
-    .where(eq(entryTable.id, +entryId));
-
-  if (entry[0]?.userId !== "1") {
-    c.status(401);
-    return c.body(null);
-  }
-
-  await c
-    .get("db")
-    .delete(activityTable)
-    .where(and(eq(activityTable.entryId, +entryId)));
-
-  await c
-    .get("db")
-    .delete(entryTable)
-    .where(and(eq(entryTable.id, +entryId)));
-
-  c.header("HX-Location", "/");
-  return c.body(null);
+entryApi.post("/entry/food-item", async (c) => {
+  const { foodList, foodItem } = await c.req.parseBody<{
+    foodList: string;
+    foodItem: string;
+  }>();
+  const existing = foodList ? foodList.split(",") : [];
+  return c.html(<FoodList foodList={[...existing, foodItem]} />);
 });
 
+entryApi.delete("/entry/food-item", async (c) => {
+  const { foodList, ...rest } = await c.req.parseBody<{
+    foodList: string;
+  }>();
+  const existing = foodList ? foodList.split(",") : [];
+  const keys = Object.keys(rest);
+  const toRemove = keys.length ? keys[0] : "";
+  const newItems = existing.filter((food) => food !== toRemove);
+  return c.html(<FoodList foodList={newItems} />);
+});
+
+// Updates
 entryApi.post("/entry", async (c) => {
   const { date, mood, ...rest } = await c.req.parseBody<{
     date: string;
     mood: string;
     entryId?: string;
+    foodItem?: string;
+    foodList?: string;
   }>();
+  delete rest.foodItem;
+  delete rest.foodList;
   const activities = Object.keys(rest);
 
   if (!mood) {
@@ -288,7 +347,12 @@ entryApi.put("/entry", async (c) => {
     date: string;
     mood: string;
     entryId: string;
+    foodItem?: string;
+    foodList?: string;
   }>();
+
+  delete rest.foodItem;
+  delete rest.foodList;
 
   // ToDo: share between with delete
   const entry = await c
@@ -331,6 +395,33 @@ entryApi.put("/entry", async (c) => {
       );
     }
   });
+  c.header("HX-Location", "/");
+  return c.body(null);
+});
+
+entryApi.delete("/entry/:entryId", async (c) => {
+  const entryId = c.req.param("entryId");
+  const entry = await c
+    .get("db")
+    .select({ userId: entryTable.userId })
+    .from(entryTable)
+    .where(eq(entryTable.id, +entryId));
+
+  if (entry[0]?.userId !== "1") {
+    c.status(401);
+    return c.body(null);
+  }
+
+  await c
+    .get("db")
+    .delete(activityTable)
+    .where(and(eq(activityTable.entryId, +entryId)));
+
+  await c
+    .get("db")
+    .delete(entryTable)
+    .where(and(eq(entryTable.id, +entryId)));
+
   c.header("HX-Location", "/");
   return c.body(null);
 });
