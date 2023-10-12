@@ -19,10 +19,10 @@ export function getPreviousDaysList(lookbackDays: number) {
 export function toDayOfWeek(dateString: string) {
   const date = dayjs(dateString);
   if (date.isToday()) {
-    return `Today (${date.format("ddd")})`;
+    return `Today, ${date.format("DD MMMM")}`;
   }
   if (date.isYesterday()) {
-    return `Yesterday (${date.format("ddd")})`;
+    return `Yesterday, ${date.format("DD MMMM")}`;
   }
-  return date.format("ddd");
+  return `${date.format("dddd, DD MMMM")}`;
 }

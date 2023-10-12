@@ -1,28 +1,32 @@
-import { Hono } from "hono";
 import { Layout } from "./shared/Layout";
-import { todoApi } from "./features/todo";
-import { ScoreApp, scoreApi } from "./features/score";
-import { ActivityApp, activityApi } from "./features/activity";
-import { HonoApp } from "./types";
+// import { ScoreApp, scoreApi } from "./features/score";
+// import { ActivityApp, activityApi } from "./features/activity";
 import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
-import { DayList } from "./features/dayList";
 import { getCurrentDate } from "./lib/date";
 import { auth } from "./features/auth";
 
-const app = new Hono<HonoApp>();
-app.use("*", auth);
+import { Entries } from "./features/entry/entries";
+import { entryApi } from "./features/entry/singleEntry";
+import { app } from "./app";
+
+app.use("*", async (c, next) => {
+  const db = drizzle(c.env.DB);
+  c.set("db", db);
+  await next();
+});
 
 const generateApp = async (db: DrizzleD1Database, date: string) => {
-  const scores = await ScoreApp(db, date);
-  const activities = await ActivityApp(db, date);
+  // const scores = await ScoreApp(db, date);
+  // const scores = await ScoreApp(db, date);
+  const entries = await Entries(db);
 
   return (
     <Layout>
       <input name="currentDate" value={date} hidden />
-      <DayList current={date} />
-      {/* <Todo /> */}
-      {scores}
-      {activities}
+      {/* <DayList current={date} /> */}
+      {/* {scores} */}
+      {/* {activities} */}
+      {entries}
     </Layout>
   );
 };
@@ -40,8 +44,8 @@ app.get("/day/:date", async (c) => {
   return c.html(app);
 });
 
-app.route("/", todoApi);
-app.route("/", scoreApi);
-app.route("/", activityApi);
+// app.route("/", todoApi);
+// app.route("/", scoreApi);
+app.route("/", entryApi);
 
 export default app;

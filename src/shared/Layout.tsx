@@ -33,7 +33,7 @@ export const Layout: FC = ({ children }) => {
         {/* <Clerk /> */}
         <title>ToDo App</title>
       </head>
-      <body>
+      <body class="border bg-gray-200 px-4" hx-boost="true">
         <div id="user-button"></div>
         {children}
       </body>
