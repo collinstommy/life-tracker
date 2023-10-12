@@ -1,5 +1,4 @@
 import { Clerk } from "@clerk/backend";
-import ClerkClient from "@clerk/clerk-js";
 
 import { API_URL, API_VERSION, JWT_KEY, SECRET_KEY } from "../constants";
 
@@ -14,12 +13,6 @@ export const clerkClient = createClerkClient({
 
 import * as constants from "../constants";
 import { Context, Next } from "hono";
-
-export async function loadClerk() {
-  const clerkFrontendApi = `pk_test_d2FybS1oYWRkb2NrLTI5LmNsZXJrLmFjY291bnRzLmRldiQ`;
-  const clerk = new ClerkClient(clerkFrontendApi);
-  await clerk.load({});
-}
 
 export async function auth(c: Context, next: Next) {
   const secretKey = constants.SECRET_KEY;
