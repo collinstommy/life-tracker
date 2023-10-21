@@ -27,8 +27,12 @@ app.get("/test", async (c) => {
   return c.body(null);
 });
 
-const generateApp = async (db: DrizzleD1Database, date: string) => {
-  const entries = await Entries(db);
+const generateApp = async (
+  db: DrizzleD1Database,
+  date: string,
+  userId: number,
+) => {
+  const entries = await Entries(db, userId);
 
   return (
     <Layout>
@@ -40,7 +44,7 @@ const generateApp = async (db: DrizzleD1Database, date: string) => {
 
 app.get("/", async (c) => {
   const db = drizzle(c.env.DB);
-  const app = await generateApp(db, getCurrentDate());
+  const app = await generateApp(db, getCurrentDate(), c.get("user").id);
 
   return c.html(app);
 });
@@ -48,7 +52,7 @@ app.get("/", async (c) => {
 app.get("/day/:date", async (c) => {
   const db = drizzle(c.env.DB);
   const date = c.req.param("date");
-  const app = await generateApp(db, date);
+  const app = await generateApp(db, date, c.get("user").id);
   return c.html(app);
 });
 

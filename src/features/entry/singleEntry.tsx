@@ -41,7 +41,7 @@ const IconButton: FC<{
         required
       />
       <label
-        class=" text-gray-400 peer-checked:text-black"
+        class=" text-gray-400 hover:cursor-pointer peer-checked:text-black"
         hx-include="[name='currentDate']"
         for={value}
       >
@@ -69,7 +69,7 @@ const FoodList: FC<{ foodList?: string[] }> = ({ foodList = [] }) => {
             />
             <label
               for={food}
-              class="flex items-center rounded-md bg-black  px-3 py-1 text-sm text-white"
+              class="flex items-center rounded-md bg-black  px-3 py-1 text-sm text-white hover:cursor-pointer"
             >
               {food}
             </label>
@@ -146,7 +146,7 @@ export const Entry: FC<{
                   />
                   <label
                     for={option}
-                    class="flex items-center rounded-md bg-gray-300 px-3 py-1 text-sm peer-checked:bg-black peer-checked:text-white"
+                    class="hover: flex cursor-pointer items-center rounded-md bg-gray-300 px-3 py-1 text-sm peer-checked:bg-black peer-checked:text-white"
                   >
                     {option}
                   </label>
@@ -235,7 +235,9 @@ entryApi.get("/edit/:entryId", async (c) => {
     })
     .from(entryTable)
     .leftJoin(activityTable, eq(entryTable.id, activityTable.entryId))
-    .where(and(eq(entryTable.id, +entryId), eq(entryTable.userId, "1")));
+    .where(
+      and(eq(entryTable.id, +entryId), eq(entryTable.userId, c.get("user").id)),
+    );
 
   const { mood, date } = entries[0];
   const activities = entries.map(({ value }) => value).filter(Boolean);
@@ -294,6 +296,7 @@ entryApi.delete("/entry/food-item", async (c) => {
 
 // Updates
 entryApi.post("/entry", async (c) => {
+  const user = c.get("user");
   const { date, mood, ...rest } = await c.req.parseBody<{
     date: string;
     mood: string;
@@ -301,6 +304,7 @@ entryApi.post("/entry", async (c) => {
     foodItem?: string;
     foodList?: string;
   }>();
+
   delete rest.foodItem;
   delete rest.foodList;
   const activities = Object.keys(rest);
@@ -317,13 +321,13 @@ entryApi.post("/entry", async (c) => {
       .values({
         date,
         mood: +mood,
-        userId: "1",
+        userId: user.id,
       })
       .returning();
 
     const metadata = {
       createdOn: getCurrentDateTime(),
-      userId: "1",
+      userId: user.id,
       date,
       entryId: createdEntry[0].id,
     };
@@ -342,6 +346,7 @@ entryApi.post("/entry", async (c) => {
 });
 
 entryApi.put("/entry", async (c) => {
+  const user = c.get("user");
   const { date, mood, entryId, ...rest } = await c.req.parseBody<{
     date: string;
     mood: string;
@@ -353,14 +358,14 @@ entryApi.put("/entry", async (c) => {
   delete rest.foodItem;
   delete rest.foodList;
 
-  // ToDo: share between with delete
+  // ToDo: share with delete
   const entry = await c
     .get("db")
     .select({ userId: entryTable.userId })
     .from(entryTable)
-    .where(eq(entryTable.id, +entryId));
+    .where(and(eq(entryTable.id, +entryId)));
 
-  if (entry[0]?.userId !== "1") {
+  if (entry[0]?.userId !== user.id) {
     c.status(401);
     return c.body(null);
   }
@@ -378,7 +383,7 @@ entryApi.put("/entry", async (c) => {
 
     const metadata = {
       createdOn: getCurrentDateTime(),
-      userId: "1",
+      userId: user.id,
       date,
       entryId: +entryId,
     };
@@ -399,6 +404,7 @@ entryApi.put("/entry", async (c) => {
 });
 
 entryApi.delete("/entry/:entryId", async (c) => {
+  const user = c.get("user");
   const entryId = c.req.param("entryId");
   const entry = await c
     .get("db")
@@ -406,7 +412,7 @@ entryApi.delete("/entry/:entryId", async (c) => {
     .from(entryTable)
     .where(eq(entryTable.id, +entryId));
 
-  if (entry[0]?.userId !== "1") {
+  if (entry[0]?.userId !== user.id) {
     c.status(401);
     return c.body(null);
   }

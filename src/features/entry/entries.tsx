@@ -1,5 +1,5 @@
 import { DrizzleD1Database } from "drizzle-orm/d1";
-import { and, eq, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { toDayOfWeek } from "../../lib/date";
 import { moodList } from "../../constants/mood";
 import { activityTable, entryTable } from "../../db/schema";
@@ -12,7 +12,6 @@ const EntryCard: FC<{
   activities: string[];
 }> = ({ mood, date, id, activities }) => {
   const Icon = moodList.find((m) => mood === m.value)?.Icon;
-
   return (
     <li>
       <a
@@ -37,7 +36,7 @@ const EntryCard: FC<{
   );
 };
 
-export const Entries = async (db: DrizzleD1Database) => {
+export const Entries = async (db: DrizzleD1Database, userId: number) => {
   const rows = await db
     .select({
       id: entryTable.id,
@@ -47,7 +46,7 @@ export const Entries = async (db: DrizzleD1Database) => {
     })
     .from(entryTable)
     .leftJoin(activityTable, eq(entryTable.id, activityTable.entryId))
-    .where(eq(entryTable.userId, "1"));
+    .where(eq(entryTable.userId, userId));
 
   const entryIds = Array.from(new Set(rows.map(({ id }) => id)));
 
