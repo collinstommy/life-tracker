@@ -12,7 +12,10 @@
     "clsx": "^2.0.0",
     "dayjs": "^1.11.9",
     "drizzle-orm": "^0.28.6",
-    "hono": "^3.6.0",
+    "google-auth-library": "^9.1.0",
+    "hono": "^3.7.6",
+    "jose": "^4.15.4",
+    "web-auth-library": "^1.0.3",
     "zod": "^3.22.2"
   },
   "devDependencies": {

@@ -51,7 +51,6 @@ const IconButton: FC<{
   );
 };
 const FoodList: FC<{ foodList?: string[] }> = ({ foodList = [] }) => {
-  console.log(foodList);
   return (
     <div id="food">
       <input hidden name="foodList" value={foodList.join(",")} />

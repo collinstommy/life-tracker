@@ -17,8 +17,11 @@ export const activityTable = sqliteTable("activity", {
     .references(() => entryTable.id),
 });
 
-/*
-how to handle remove activities from an existing entry
-- get all items that were not checked and batch delete by id?
-- use check boxes or buttons?
+export const userTable = sqliteTable("user", {
+  id: integer("id", { mode: "number" }).primaryKey({ autoIncrement: true }),
+  googleId: text("google_sub"),
+});
+
+/* ToDo
+- indices
 */
