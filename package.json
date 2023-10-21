@@ -12,11 +12,14 @@
     "clsx": "^2.0.0",
     "dayjs": "^1.11.9",
     "drizzle-orm": "^0.28.6",
-    "hono": "^3.6.0",
+    "google-auth-library": "^9.1.0",
+    "hono": "^3.7.6",
+    "jose": "^4.15.4",
+    "web-auth-library": "^1.0.3",
     "zod": "^3.22.2"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20230419.0",
+    "@cloudflare/workers-types": "^4.20231016.0",
     "@typescript-eslint/eslint-plugin": "^6.7.3",
     "@typescript-eslint/parser": "^6.7.3",
     "drizzle-kit": "^0.19.13",

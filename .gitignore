@@ -2,3 +2,4 @@ node_modules/
 .wrangler
 out.js
 .env
+.dev.vars
