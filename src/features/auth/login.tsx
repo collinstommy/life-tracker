@@ -40,9 +40,6 @@ export const Login = () => (
   </html>
 );
 
-const GOOGLE_CLIENT_ID =
-  "21946598134-2cdfh6kammv6kjn72pv97p3uk5li9pgg.apps.googleusercontent.com";
-
 async function getUser(db: DrizzleD1Database, googleSub: string) {
   const user = await db
     .select()
@@ -63,7 +60,7 @@ authApi.post("/login/google", async (c) => {
   const { credential } = await c.req.parseBody<{ credential: string }>();
   const { sub, name } = await verifyIdToken({
     idToken: credential,
-    clientId: GOOGLE_CLIENT_ID,
+    clientId: c.env.GOOGLE_CLIENT_ID,
     waitUntil: c.executionCtx.waitUntil,
   });
 
