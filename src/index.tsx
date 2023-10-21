@@ -9,22 +9,20 @@ import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
 
 app.use("*", async (c, next) => {
-  const db = drizzle(c.env.DB);
-  c.set("db", db);
+  const isLoginRoute = c.req.path.includes("login");
 
   const userToken = getCookie(c, "user");
-
   if (userToken) {
     const user = await verify(userToken, c.env.JWT_SECRET);
     c.set("user", user);
+  } else if (!isLoginRoute) {
+    return c.redirect("/login");
   }
+
+  const db = drizzle(c.env.DB);
+  c.set("db", db);
+
   await next();
-});
-
-app.get("/test", async (c) => {
-  console.log(c.get("user"));
-
-  return c.body(null);
 });
 
 const generateApp = async (
