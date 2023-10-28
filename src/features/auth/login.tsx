@@ -7,37 +7,36 @@ import { userTable } from "../../db/schema";
 import { eq } from "drizzle-orm";
 import { DrizzleD1Database } from "drizzle-orm/d1";
 import dayjs from "dayjs";
+import { Layout } from "../../shared/Layout";
 
 export const authApi = new Hono<HonoApp>();
 
 export const Login = () => (
-  <html>
-    <head>
-      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <script src="https://cdn.tailwindcss.com"></script>
-      <script src="https://accounts.google.com/gsi/client" async></script>
-      <div
-        id="g_id_onload"
-        data-client_id="21946598134-2cdfh6kammv6kjn72pv97p3uk5li9pgg.apps.googleusercontent.com"
-        data-context="signin"
-        data-ux_mode="popup"
-        data-login_uri="http://localhost:8787/login/google"
-        data-itp_support="true"
-      ></div>
+  <Layout
+    head={
+      <>
+        <script src="https://accounts.google.com/gsi/client" async></script>
+        <div
+          id="g_id_onload"
+          data-client_id="21946598134-2cdfh6kammv6kjn72pv97p3uk5li9pgg.apps.googleusercontent.com"
+          data-context="signin"
+          data-ux_mode="popup"
+          data-login_uri="http://localhost:8787/login/google"
+          data-itp_support="true"
+        ></div>
 
-      <div
-        class="g_id_signin"
-        data-type="standard"
-        data-shape="rectangular"
-        data-theme="outline"
-        data-text="signin_with"
-        data-size="large"
-        data-logo_alignment="left"
-      ></div>
-      <title>ToDo App</title>
-    </head>
-    <body class="border bg-gray-200 px-4" hx-boost="true"></body>
-  </html>
+        <div
+          class="g_id_signin"
+          data-type="standard"
+          data-shape="rectangular"
+          data-theme="outline"
+          data-text="signin_with"
+          data-size="large"
+          data-logo_alignment="left"
+        ></div>
+      </>
+    }
+  />
 );
 
 async function getUser(db: DrizzleD1Database, googleSub: string) {
