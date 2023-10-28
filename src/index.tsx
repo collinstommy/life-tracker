@@ -2,7 +2,7 @@ import { Layout } from "./shared/Layout";
 import { DrizzleD1Database, drizzle } from "drizzle-orm/d1";
 import { getCurrentDate } from "./lib/date";
 import { Entries } from "./features/entry/entries";
-import { entryApi } from "./features/entry/singleEntry";
+import { entryApi } from "./features/singleEntry.tsx/routes";
 import { app } from "./app";
 import { Login, authApi } from "./features/auth/login";
 import { getCookie } from "hono/cookie";
