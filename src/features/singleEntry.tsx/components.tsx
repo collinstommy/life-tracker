@@ -7,8 +7,10 @@ import { BackIcon, DeleteIcon } from "../../shared/Icons";
 const Heading: FC = ({ children }) => <h2 class="font-semibold">{children}</h2>;
 
 const Card: FC = ({ children }) => (
-  <li class="flex flex-col rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200 ">
-    {children}
+  <li>
+    <div class="flex flex-col rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200">
+      {children}
+    </div>
   </li>
 );
 

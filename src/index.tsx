@@ -7,6 +7,7 @@ import { app } from "./app";
 import { Login, authApi } from "./features/auth/login";
 import { getCookie } from "hono/cookie";
 import { verify } from "hono/jwt";
+import { settingsApp } from "./features/settings/routes";
 
 app.use("*", async (c, next) => {
   const isLoginRoute = c.req.path.includes("login");
@@ -60,5 +61,6 @@ app.get("/login", (c) => {
 
 app.route("/", entryApi);
 app.route("/", authApi);
+app.route("/settings", settingsApp);
 
 export default app;

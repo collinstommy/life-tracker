@@ -32,3 +32,4 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 - [ ] food diary
 - [ ] social activities, lunch, dinner, drinking, calling, hangout
 - [ ] hard 75
+- [ ] icons for activities
