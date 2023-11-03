@@ -15,11 +15,12 @@ export async function getActivitySettingsView(c: AppContext) {
   const { db } = c.var;
   return c.html(
     <Layout>
-      <div class="py-4">
+      <div class="flex flex-col gap-2 py-4">
         <Card>activities</Card>
         <Card>
-          <label for="activity"></label>
+          <label for="activity">Add new entry</label>
           <input name="activity" id="activity"></input>
+          <button>Add</button>
         </Card>
       </div>
     </Layout>,
