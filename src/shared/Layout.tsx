@@ -9,9 +9,9 @@ export const Layout: FC<{ head?: HtmlEscapedString }> = ({
     <html>
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="/static/styles.css" rel="stylesheet" />
         <script src="https://unpkg.com/htmx.org@1.9.3"></script>
         <script src="https://unpkg.com/hyperscript.org@0.9.9"></script>
-        <script src="https://cdn.tailwindcss.com"></script>
         <title>ToDo App</title>
         {head}
       </head>

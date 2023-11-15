@@ -1,14 +1,15 @@
 import { FC } from "hono/jsx";
 import { getCurrentDate, toDayOfWeek } from "../../lib/date";
 import { moodList } from "../../constants/mood";
-import { categories } from "../../constants/categories";
 import { BackIcon, DeleteIcon } from "../../shared/Icons";
 
 const Heading: FC = ({ children }) => <h2 class="font-semibold">{children}</h2>;
 
 const Card: FC = ({ children }) => (
-  <li class="flex flex-col rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200 ">
-    {children}
+  <li>
+    <div class="flex flex-col rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200">
+      {children}
+    </div>
   </li>
 );
 
@@ -104,12 +105,14 @@ const NutritionSection: FC = () => {
 };
 
 export const Entry: FC<{
+  categories: [string, string[]][];
   mood?: number;
   date?: string;
   activities?: (string | null)[];
   entryId?: number;
   errors?: string[];
 }> = ({
+  categories,
   mood,
   date = getCurrentDate(),
   activities = [],
@@ -154,7 +157,7 @@ export const Entry: FC<{
             <span />
           )}
         </Card>
-        {categories.map(({ name, options }) => (
+        {categories.map(([name, options]) => (
           <Card>
             <Heading>{name}</Heading>
             <ul class="flex flex-wrap gap-2 pt-3">

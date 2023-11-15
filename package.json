@@ -3,11 +3,14 @@
     "db:push": "drizzle-kit push:sqlite",
     "db:studio": "drizzle-kit studio",
     "db:generate": "drizzle-kit generate:sqlite",
-    "deploy": "wrangler deploy",
-    "start": "wrangler dev  --live-reload"
+    "deploy": "tailwind && wrangler deploy",
+    "start": "wrangler dev  --live-reload && tailwind --watch",
+    "tailwind": "tailwindcss -i ./src/styles.css -o ./assets/static/styles.css",
+    "tailwind:watch": "tailwindcss -i ./src/styles.css -o ./assets/static/styles.css --watch"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.1.8",
+    "@tailwindcss/forms": "^0.5.6",
     "better-sqlite3": "^8.6.0",
     "clsx": "^2.0.0",
     "dayjs": "^1.11.9",
@@ -27,6 +30,7 @@
     "prettier": "^3.0.3",
     "prettier-plugin-tailwindcss": "^0.5.4",
     "tailwindcss": "^3.3.3",
+    "typed-htmx": "^0.2.0",
     "typescript": "^5.0.4",
     "wrangler": "^3.0.0"
   }

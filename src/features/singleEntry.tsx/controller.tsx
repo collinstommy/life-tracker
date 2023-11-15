@@ -1,19 +1,54 @@
 import { AppContext } from "../../types";
-import { activityTable, entryTable } from "../../db/schema";
+import {
+  activitySettingsTable,
+  activityTable,
+  categoryTable,
+  entryTable,
+} from "../../db/schema";
 import { and, eq } from "drizzle-orm";
 import { getCurrentDateTime, toDayOfWeek } from "../../lib/date";
 import { Entry, FoodList } from "./components";
 import { Layout } from "../../shared/Layout";
+import { DrizzleD1Database } from "drizzle-orm/d1";
 
-export function newEntryView(c: AppContext) {
+async function getSettings(userId: number, db: DrizzleD1Database) {
+  const settings = await db
+    .select({
+      categoryId: categoryTable.id,
+      label: categoryTable.label,
+      value: activitySettingsTable.value,
+    })
+    .from(categoryTable)
+    .where(eq(categoryTable.userId, userId))
+    .leftJoin(
+      activitySettingsTable,
+      eq(categoryTable.id, activitySettingsTable.categoryId),
+    );
+
+  const settingsMap = new Map<string, string[]>();
+  settings.forEach((setting) => {
+    const existing = settingsMap.get(setting.label);
+    if (existing && setting.value) {
+      settingsMap.set(setting.label, [...existing, setting.value]);
+    } else if (setting.value) {
+      settingsMap.set(setting.label, [setting.value]);
+    }
+  });
+
+  // todo: fix this horrific type
+  return [...settingsMap] as [string, string[]][];
+}
+
+export async function newEntryView(c: AppContext) {
+  const settings = await getSettings(c.var.user.id, c.var.db);
   return c.html(
     <Layout>
-      <Entry />
+      <Entry categories={settings} />
     </Layout>,
   );
 }
 
-export async function editEntryView(c: AppContext<"/edit/:entryId">) {
+export async function editEntryView(c: AppContext<":entryId">) {
   const entryId = c.req.param("entryId");
   const entries = await c
     .get("db")
@@ -30,10 +65,12 @@ export async function editEntryView(c: AppContext<"/edit/:entryId">) {
 
   const { mood, date } = entries[0];
   const activities = entries.map(({ value }) => value).filter(Boolean);
+  const settings = await getSettings(c.var.user.id, c.var.db);
 
   return c.html(
     <Layout>
       <Entry
+        categories={settings}
         mood={mood}
         date={date}
         activities={activities}
@@ -46,6 +83,7 @@ export async function editEntryView(c: AppContext<"/edit/:entryId">) {
 // partials
 export async function createEntry(c: AppContext) {
   const user = c.get("user");
+  const settings = await getSettings(c.var.user.id, c.var.db);
   const { date, mood, ...rest } = await c.req.parseBody<{
     date: string;
     mood: string;
@@ -54,13 +92,19 @@ export async function createEntry(c: AppContext) {
     foodList?: string;
   }>();
 
+  // Todo - fix this - add activity type to the markup
   delete rest.foodItem;
   delete rest.foodList;
   const activities = Object.keys(rest);
 
   if (!mood) {
     return c.html(
-      <Entry activities={activities} date={date} errors={["mood"]} />,
+      <Entry
+        categories={settings}
+        activities={activities}
+        date={date}
+        errors={["mood"]}
+      />,
     );
   }
 
