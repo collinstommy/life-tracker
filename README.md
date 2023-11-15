@@ -20,15 +20,23 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 ### Chores
 - [x] put drizzle into middleware?
 - [x] filter by day of the week
-- [ ] auth + login
+- [x] auth + login
 - [x] validation for create entry and edit entry
+- [ ] zod validation
+- [ ] uuid for db primary key
 
 ### Features
+
+#### MVP
+- [ ] settings to add activities
+- [ ] colors for mood
+- [ ] deploy
+
+#### Later
 - [x] edit existing entry
 - [x] delete entry
-- [ ] add fitness tracking
 - [ ] sort activities by category on entry card
-- [ ] settings to add activities
+- [ ] add fitness tracking
 - [ ] food diary
 - [ ] social activities, lunch, dinner, drinking, calling, hangout
 - [ ] hard 75

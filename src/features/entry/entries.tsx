@@ -4,6 +4,7 @@ import { toDayOfWeek } from "../../lib/date";
 import { moodList } from "../../constants/mood";
 import { activityTable, entryTable } from "../../db/schema";
 import { FC } from "hono/jsx";
+import { SettingsIcon } from "../../shared/Icons";
 
 const EntryCard: FC<{
   id: number;
@@ -16,7 +17,7 @@ const EntryCard: FC<{
     <li>
       <a
         href={`/edit/${id}`}
-        class="group flex cursor-pointer justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200"
+        class="group flex cursor-pointer justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200 hover:outline"
       >
         <div class=" flex gap-3">
           <div>{Icon && <Icon className="w-14" />}</div>
@@ -52,9 +53,14 @@ export const Entries = async (db: DrizzleD1Database, userId: number) => {
 
   return (
     <div class="flex flex-col py-2">
-      <a href="/new" class="rounded bg-black px-8 py-2 text-center text-white">
-        Add Entry +
-      </a>
+      <div class="flex gap-1">
+        <a href="/new" class="btn flex w-full justify-center text-center">
+          Add Entry +
+        </a>
+        <a class="btn" href="settings/categories">
+          <SettingsIcon className="w-6" />
+        </a>
+      </div>
       <ul class="grid w-full gap-3 py-4">
         {entryIds.map((entryId) => {
           const entry = rows.find((entry) => entry.id === entryId);

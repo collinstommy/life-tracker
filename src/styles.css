@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+  .btn {
+    @apply rounded bg-black px-8 py-2 text-center text-white;
+  }
+
+  .card {
+    @apply rounded-md bg-white px-4 py-4 shadow-sm shadow-gray-200;
+  }
+
+  .card-container {
+    @apply rounded-md bg-white shadow-sm shadow-gray-200;
+  }
+}
