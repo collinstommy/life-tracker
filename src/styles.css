@@ -19,5 +19,5 @@
 
 .fade-me-out.htmx-swapping {
   opacity: 0;
-  transition: opacity .15s ease-out;
+  transition: opacity .2s ease-out;
 }

@@ -4,7 +4,9 @@ import { Card } from "../../shared/Card";
 import { Layout } from "../../shared/Layout";
 import { AppContext } from "../../types";
 import {
+  ActivityCard,
   ActivityList,
+  CategoryCard,
   CategoryList,
   CreateActivityForm,
   CreateCategoryForm,
@@ -60,14 +62,13 @@ export async function createCategory(c: AppContext<typeof CATEGORY_PATH>) {
   const { db } = c.var;
   const userId = c.get("user").id;
 
-  const { activityGroup } = await c.req.parseBody<{ activityGroup: string }>();
-  await db.insert(categoryTable).values({ label: activityGroup, userId });
-  const categories = await c.var.db
-    .select()
-    .from(categoryTable)
-    .where(eq(categoryTable.userId, userId));
+  const { label } = await c.req.parseBody<{ label: string }>();
+  const category = await db
+    .insert(categoryTable)
+    .values({ label, userId })
+    .returning();
 
-  return c.html(<CategoryList categories={categories} />);
+  return c.html(<CategoryCard id={category[0].id} label={label} />);
 }
 
 export async function deleteCategory(
@@ -96,17 +97,13 @@ export async function createActivity(
   // ToDo: check if user owns category
 
   // todo: insert after last activity
-  await db
+  const created = await db
     .insert(activitySettingsTable)
-    .values({ value, categoryId: +categoryId });
-
-  const activities = await c.var.db
-    .select()
-    .from(activitySettingsTable)
-    .where(eq(activitySettingsTable.categoryId, +categoryId));
+    .values({ value, categoryId: +categoryId })
+    .returning();
 
   return c.html(
-    <ActivityList activities={activities} categoryId={categoryId} />,
+    <ActivityCard id={created[0].id} categoryId={categoryId} value={value} />,
   );
 }
 

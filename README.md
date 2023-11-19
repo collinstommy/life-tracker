@@ -24,7 +24,7 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 - [x] validation for create entry and edit entry
 - [ ] zod validation
 - [ ] uuid for db primary key
-- [ ] use oob swap for deleting items?
+- [x] use oob swap for deleting items?
 - [ ] migrate to async hono v3
 
 ### Features
