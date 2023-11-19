@@ -77,14 +77,13 @@ export async function deleteCategory(
   const userId = c.get("user").id;
   const id = c.req.param("id");
 
+  // check for user ownership
+  await db
+    .delete(activitySettingsTable)
+    .where(eq(activitySettingsTable.categoryId, +id));
   await db.delete(categoryTable).where(eq(categoryTable.id, +id));
 
-  const categories = await c.var.db
-    .select()
-    .from(categoryTable)
-    .where(eq(categoryTable.userId, userId));
-
-  return c.html(<CategoryList categories={categories} />);
+  return c.body(null);
 }
 
 export async function createActivity(
@@ -92,13 +91,15 @@ export async function createActivity(
 ) {
   const { db } = c.var;
   const categoryId = c.req.param("id");
-
   const { value } = await c.req.parseBody<{ value: string }>();
+
+  // ToDo: check if user owns category
+
+  // todo: insert after last activity
   await db
     .insert(activitySettingsTable)
     .values({ value, categoryId: +categoryId });
 
-  // ToDo: check if user owns category
   const activities = await c.var.db
     .select()
     .from(activitySettingsTable)
@@ -114,18 +115,10 @@ export async function deleteActivity(
 ) {
   const { db } = c.var;
   const activityId = c.req.param("activityId");
-  const categoryId = c.req.param("categoryId");
 
   await db
     .delete(activitySettingsTable)
     .where(eq(activitySettingsTable.id, +activityId));
 
-  const activities = await c.var.db
-    .select()
-    .from(activitySettingsTable)
-    .where(eq(activitySettingsTable.categoryId, +categoryId));
-
-  return c.html(
-    <ActivityList activities={activities} categoryId={categoryId} />,
-  );
+  return c.body(null);
 }
