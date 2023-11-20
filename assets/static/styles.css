@@ -780,6 +780,10 @@ select {
   width: 3.5rem;
 }
 
+.w-4 {
+  width: 1rem;
+}
+
 .w-6 {
   width: 1.5rem;
 }

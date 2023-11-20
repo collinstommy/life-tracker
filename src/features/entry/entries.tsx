@@ -17,7 +17,7 @@ const EntryCard: FC<{
     <li>
       <a
         href={`/edit/${id}`}
-        class="group flex cursor-pointer justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200 hover:outline"
+        class="group flex cursor-pointer justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200 hover:cursor-pointer hover:outline"
       >
         <div class=" flex gap-3">
           <div>{Icon && <Icon className="w-14" />}</div>
@@ -57,7 +57,7 @@ export const Entries = async (db: DrizzleD1Database, userId: number) => {
         <a href="/new" class="btn flex w-full justify-center text-center">
           Add Entry +
         </a>
-        <a class="btn" href="settings/categories">
+        <a class="btn" href="/settings/categories">
           <SettingsIcon className="w-6" />
         </a>
       </div>

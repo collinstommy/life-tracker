@@ -18,6 +18,7 @@ export const activityTable = sqliteTable("activity", {
   entryId: integer("entry_id")
     .notNull()
     .references(() => entryTable.id),
+  type: text("a_type"),
 });
 
 export const userTable = sqliteTable("user", {

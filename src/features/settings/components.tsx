@@ -1,6 +1,6 @@
 import type { ActivitySetting, Category } from "../../db";
 import { FC } from "hono/jsx";
-import { DeleteIcon } from "../../shared/Icons";
+import { BackIcon, DeleteIcon } from "../../shared/Icons";
 import { CATEGORY_PATH } from "./routes";
 
 const CATEGORY_ID = "category-list";
@@ -70,7 +70,12 @@ export const CategoryList: FC<{ categories: Category[] }> = ({
   categories,
 }) => (
   <div class="flex flex-col gap-2" id={CATEGORY_ID}>
-    <h1 class="text-2xl font-bold">Activity Categories</h1>
+    <div class="flex items-center gap-2">
+      <a href="/" class="rounded bg-black px-3 py-1 text-center text-white">
+        <BackIcon className="w-4" />
+      </a>
+      <h1 class="text-2xl font-bold">Activity Categories</h1>
+    </div>
     {categories.map((cat) => (
       <CategoryCard id={cat.id} label={cat.label} />
     ))}

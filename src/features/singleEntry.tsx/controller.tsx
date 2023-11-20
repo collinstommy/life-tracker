@@ -56,6 +56,7 @@ export async function editEntryView(c: AppContext<":entryId">) {
       mood: entryTable.mood,
       date: entryTable.date,
       value: activityTable.value,
+      type: activityTable.type,
     })
     .from(entryTable)
     .leftJoin(activityTable, eq(entryTable.id, activityTable.entryId))
@@ -66,6 +67,10 @@ export async function editEntryView(c: AppContext<":entryId">) {
   const { mood, date } = entries[0];
   const activities = entries.map(({ value }) => value).filter(Boolean);
   const settings = await getSettings(c.var.user.id, c.var.db);
+  const foodData = entries.filter((activity) => activity.type === "food");
+  const foodItems = foodData
+    .map(({ value }) => value)
+    .filter(Boolean) as string[];
 
   return c.html(
     <Layout>
@@ -74,6 +79,7 @@ export async function editEntryView(c: AppContext<":entryId">) {
         mood={mood}
         date={date}
         activities={activities}
+        foodItems={foodItems}
         entryId={+entryId}
       />
     </Layout>,
@@ -84,7 +90,7 @@ export async function editEntryView(c: AppContext<":entryId">) {
 export async function createEntry(c: AppContext) {
   const user = c.get("user");
   const settings = await getSettings(c.var.user.id, c.var.db);
-  const { date, mood, ...rest } = await c.req.parseBody<{
+  const { date, mood, foodItem, foodList, ...rest } = await c.req.parseBody<{
     date: string;
     mood: string;
     entryId?: string;
@@ -93,10 +99,11 @@ export async function createEntry(c: AppContext) {
   }>();
 
   // Todo - fix this - add activity type to the markup
-  delete rest.foodItem;
-  delete rest.foodList;
   const activities = Object.keys(rest);
 
+  const foodItems = foodList ? foodList.split(",") : [];
+  console.log(foodItems, foodList);
+  // ToDo: use oob swap for errors
   if (!mood) {
     return c.html(
       <Entry
@@ -129,6 +136,14 @@ export async function createEntry(c: AppContext) {
       await tx.insert(activityTable).values(
         activities.map((activity) => ({
           value: activity,
+          ...metadata,
+        })),
+      );
+
+      await tx.insert(activityTable).values(
+        foodItems.map((food) => ({
+          value: food,
+          type: "food",
           ...metadata,
         })),
       );

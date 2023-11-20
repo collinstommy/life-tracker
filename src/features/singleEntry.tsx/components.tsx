@@ -83,7 +83,7 @@ const IconButton: FC<{
   );
 };
 
-const NutritionSection: FC = () => {
+const NutritionSection: FC<{ foodList?: string[] }> = ({ foodList }) => {
   return (
     <Card>
       <Heading>Nutrition</Heading>
@@ -99,7 +99,7 @@ const NutritionSection: FC = () => {
           _="on htmx:afterRequest set my value to ''"
         />
       </div>
-      <FoodList />
+      <FoodList foodList={foodList} />
     </Card>
   );
 };
@@ -111,6 +111,7 @@ export const Entry: FC<{
   activities?: (string | null)[];
   entryId?: number;
   errors?: string[];
+  foodItems?: string[];
 }> = ({
   categories,
   mood,
@@ -118,6 +119,7 @@ export const Entry: FC<{
   activities = [],
   entryId,
   errors = [],
+  foodItems,
 }) => {
   return (
     <form class="group flex flex-col gap-6 py-4">
@@ -181,7 +183,7 @@ export const Entry: FC<{
             </ul>
           </Card>
         ))}
-        <NutritionSection />
+        <NutritionSection foodList={foodItems} />
       </ul>
       <div class="flex w-full gap-2">
         <a href="/" class="rounded bg-black px-6 py-2 text-center text-white ">

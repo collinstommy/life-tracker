@@ -31,7 +31,7 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 
 #### MVP
 - [x] settings to add activities
-- [ ] animate delete
+- [x] animate delete
 - [ ] colors for mood
 - [ ] save food
 - [ ] deploy
