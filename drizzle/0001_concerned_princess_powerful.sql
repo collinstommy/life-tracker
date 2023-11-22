@@ -1,0 +1,1 @@
+ALTER TABLE activity ADD `a_type` text;

@@ -41,7 +41,8 @@ async function getSettings(userId: number, db: DrizzleD1Database) {
 }
 
 export async function newEntryView(c: AppContext) {
-  const settings = await getSettings(c.var.user.id, c.var.db);
+  const { db } = c.var;
+  const settings = await getSettings(c.var.user.id, db);
   return c.html(
     <Layout>
       <Entry categories={settings} />
@@ -98,7 +99,8 @@ const getItemsByPrefix = (rest: Record<string, string>, prefix: string) => {
 // partials
 export async function createEntry(c: AppContext) {
   const user = c.get("user");
-  const settings = await getSettings(c.var.user.id, c.var.db);
+  const { db } = c.var;
+  const settings = await getSettings(c.var.user.id, db);
   const { date, mood, ...rest } = await c.req.parseBody<{
     date: string;
     mood: string;
@@ -107,8 +109,6 @@ export async function createEntry(c: AppContext) {
   // Todo - fix this - add activity type to the markup
   const activities = getItemsByPrefix(rest, "activity:");
   const foodItems = getItemsByPrefix(rest, "food:");
-
-  console.log(foodItems);
 
   // ToDo: use oob swap for errors
   if (!mood) {
@@ -122,46 +122,48 @@ export async function createEntry(c: AppContext) {
     );
   }
 
-  await c.var.db.transaction(async (tx) => {
-    const createdEntry = await tx
-      .insert(entryTable)
-      .values({
-        date,
-        mood: +mood,
-        userId: user.id,
-      })
-      .returning();
-
-    const metadata = {
-      createdOn: getCurrentDateTime(),
-      userId: user.id,
+  const createdEntry = await db
+    .insert(entryTable)
+    .values({
       date,
-      entryId: createdEntry[0].id,
-    };
+      mood: +mood,
+      userId: user.id,
+    })
+    .returning();
 
-    if (activities.length) {
-      await tx.insert(activityTable).values(
-        activities.map((activity) => ({
-          value: activity,
-          ...metadata,
-        })),
-      );
+  const metadata = {
+    createdOn: getCurrentDateTime(),
+    userId: user.id,
+    date,
+    entryId: createdEntry[0].id,
+  };
 
-      await tx.insert(activityTable).values(
-        foodItems.map((food) => ({
-          value: food,
-          type: FOOD_TYPE,
-          ...metadata,
-        })),
-      );
-    }
-  });
+  if (activities.length) {
+    await db.insert(activityTable).values(
+      activities.map((activity) => ({
+        value: activity,
+        ...metadata,
+      })),
+    );
+  }
+
+  if (foodItems.length) {
+    await db.insert(activityTable).values(
+      foodItems.map((food) => ({
+        value: food,
+        type: FOOD_TYPE,
+        ...metadata,
+      })),
+    );
+  }
+
   c.header("HX-Location", "/");
   return c.body(null);
 }
 
 export async function updateEntry(c: AppContext<"/entry/:entryId">) {
   const user = c.get("user");
+  const { db } = c.var;
   const entryId = c.req.param("entryId");
   const { date, mood, ...rest } = await c.req.parseBody<{
     date: string;
@@ -170,7 +172,7 @@ export async function updateEntry(c: AppContext<"/entry/:entryId">) {
   }>();
 
   // ToDo: share with delete
-  const entry = await c.var.db
+  const entry = await db
     .select({ userId: entryTable.userId })
     .from(entryTable)
     .where(and(eq(entryTable.id, +entryId)));
@@ -182,42 +184,41 @@ export async function updateEntry(c: AppContext<"/entry/:entryId">) {
   const activities = getItemsByPrefix(rest, "activity:");
   const foodItems = getItemsByPrefix(rest, "food:");
 
-  await c.var.db.transaction(async (tx) => {
-    await tx
-      .update(entryTable)
-      .set({
-        date,
-        mood: +mood,
-      })
-      .where(eq(entryTable.id, +entryId));
-
-    const metadata = {
-      createdOn: getCurrentDateTime(),
-      userId: user.id,
+  await db
+    .update(entryTable)
+    .set({
       date,
-      entryId: +entryId,
-    };
+      mood: +mood,
+    })
+    .where(eq(entryTable.id, +entryId));
 
-    await tx.delete(activityTable).where(eq(activityTable.entryId, +entryId));
+  const metadata = {
+    createdOn: getCurrentDateTime(),
+    userId: user.id,
+    date,
+    entryId: +entryId,
+  };
 
-    if (activities.length) {
-      await tx.insert(activityTable).values(
-        activities.map((activity) => ({
-          value: activity,
-          ...metadata,
-        })),
-      );
-    }
-    if (foodItems.length) {
-      await tx.insert(activityTable).values(
-        foodItems.map((food) => ({
-          value: food,
-          type: FOOD_TYPE,
-          ...metadata,
-        })),
-      );
-    }
-  });
+  await db.delete(activityTable).where(eq(activityTable.entryId, +entryId));
+
+  if (activities.length) {
+    await db.insert(activityTable).values(
+      activities.map((activity) => ({
+        value: activity,
+        ...metadata,
+      })),
+    );
+  }
+  if (foodItems.length) {
+    await db.insert(activityTable).values(
+      foodItems.map((food) => ({
+        value: food,
+        type: FOOD_TYPE,
+        ...metadata,
+      })),
+    );
+  }
+
   c.header("HX-Location", "/");
   return c.body(null);
 }
@@ -225,7 +226,8 @@ export async function updateEntry(c: AppContext<"/entry/:entryId">) {
 export async function deleteEntry(c: AppContext<"/entry/:entryId">) {
   const user = c.get("user");
   const entryId = c.req.param("entryId");
-  const entry = await c.var.db
+  const { db } = c.var;
+  const entry = await db
     .select({ userId: entryTable.userId })
     .from(entryTable)
     .where(eq(entryTable.id, +entryId));
@@ -235,11 +237,11 @@ export async function deleteEntry(c: AppContext<"/entry/:entryId">) {
     return c.body(null);
   }
 
-  await c.var.db
+  await db
     .delete(activityTable)
     .where(and(eq(activityTable.entryId, +entryId)));
 
-  await c.var.db.delete(entryTable).where(and(eq(entryTable.id, +entryId)));
+  await db.delete(entryTable).where(and(eq(entryTable.id, +entryId)));
 
   c.header("HX-Location", "/");
   return c.body(null);
