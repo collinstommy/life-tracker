@@ -1,10 +1,6 @@
 import { DrizzleD1Database } from "drizzle-orm/d1";
 import { categories } from "../../constants/categories";
-import {
-  activitySettingsTable,
-  activityTable,
-  categoryTable,
-} from "../../db/schema";
+import { activitySettingsTable, categoryTable } from "../../db/schema";
 import { HonoApp } from "../../types";
 import { Hono } from "hono";
 

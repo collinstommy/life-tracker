@@ -7,9 +7,10 @@ import {
 } from "../../db/schema";
 import { and, eq } from "drizzle-orm";
 import { getCurrentDateTime, toDayOfWeek } from "../../lib/date";
-import { Entry, FoodList } from "./components";
+import { Entry, FoodItem } from "./components";
 import { Layout } from "../../shared/Layout";
 import { DrizzleD1Database } from "drizzle-orm/d1";
+import { FOOD_TYPE } from "../../constants/activities";
 
 async function getSettings(userId: number, db: DrizzleD1Database) {
   const settings = await db
@@ -56,6 +57,7 @@ export async function editEntryView(c: AppContext<":entryId">) {
       mood: entryTable.mood,
       date: entryTable.date,
       value: activityTable.value,
+      type: activityTable.type,
     })
     .from(entryTable)
     .leftJoin(activityTable, eq(entryTable.id, activityTable.entryId))
@@ -66,6 +68,10 @@ export async function editEntryView(c: AppContext<":entryId">) {
   const { mood, date } = entries[0];
   const activities = entries.map(({ value }) => value).filter(Boolean);
   const settings = await getSettings(c.var.user.id, c.var.db);
+  const foodData = entries.filter((activity) => activity.type === "food");
+  const foodItems = foodData
+    .map(({ value }) => value)
+    .filter(Boolean) as string[];
 
   return c.html(
     <Layout>
@@ -74,11 +80,20 @@ export async function editEntryView(c: AppContext<":entryId">) {
         mood={mood}
         date={date}
         activities={activities}
+        foodItems={foodItems}
         entryId={+entryId}
       />
     </Layout>,
   );
 }
+
+const getItemsByPrefix = (rest: Record<string, string>, prefix: string) => {
+  const matchingKeys = Object.keys(rest).filter((key) =>
+    key.startsWith(prefix),
+  );
+  const matchingValues = matchingKeys.map((item) => item.replace(prefix, ""));
+  return matchingValues;
+};
 
 // partials
 export async function createEntry(c: AppContext) {
@@ -87,16 +102,15 @@ export async function createEntry(c: AppContext) {
   const { date, mood, ...rest } = await c.req.parseBody<{
     date: string;
     mood: string;
-    entryId?: string;
-    foodItem?: string;
-    foodList?: string;
   }>();
 
   // Todo - fix this - add activity type to the markup
-  delete rest.foodItem;
-  delete rest.foodList;
-  const activities = Object.keys(rest);
+  const activities = getItemsByPrefix(rest, "activity:");
+  const foodItems = getItemsByPrefix(rest, "food:");
 
+  console.log(foodItems);
+
+  // ToDo: use oob swap for errors
   if (!mood) {
     return c.html(
       <Entry
@@ -132,24 +146,28 @@ export async function createEntry(c: AppContext) {
           ...metadata,
         })),
       );
+
+      await tx.insert(activityTable).values(
+        foodItems.map((food) => ({
+          value: food,
+          type: FOOD_TYPE,
+          ...metadata,
+        })),
+      );
     }
   });
   c.header("HX-Location", "/");
   return c.body(null);
 }
 
-export async function updateEntry(c: AppContext) {
+export async function updateEntry(c: AppContext<"/entry/:entryId">) {
   const user = c.get("user");
-  const { date, mood, entryId, ...rest } = await c.req.parseBody<{
+  const entryId = c.req.param("entryId");
+  const { date, mood, ...rest } = await c.req.parseBody<{
     date: string;
     mood: string;
     entryId: string;
-    foodItem?: string;
-    foodList?: string;
   }>();
-
-  delete rest.foodItem;
-  delete rest.foodList;
 
   // ToDo: share with delete
   const entry = await c.var.db
@@ -161,8 +179,8 @@ export async function updateEntry(c: AppContext) {
     c.status(401);
     return c.body(null);
   }
-
-  const activities = Object.keys(rest);
+  const activities = getItemsByPrefix(rest, "activity:");
+  const foodItems = getItemsByPrefix(rest, "food:");
 
   await c.var.db.transaction(async (tx) => {
     await tx
@@ -186,6 +204,15 @@ export async function updateEntry(c: AppContext) {
       await tx.insert(activityTable).values(
         activities.map((activity) => ({
           value: activity,
+          ...metadata,
+        })),
+      );
+    }
+    if (foodItems.length) {
+      await tx.insert(activityTable).values(
+        foodItems.map((food) => ({
+          value: food,
+          type: FOOD_TYPE,
           ...metadata,
         })),
       );
@@ -231,21 +258,16 @@ export async function parseDate(c: AppContext) {
 }
 
 export async function addFoodItem(c: AppContext) {
-  const { foodList, foodItem } = await c.req.parseBody<{
-    foodList: string;
+  const { foodItem } = await c.req.parseBody<{
     foodItem: string;
   }>();
-  const existing = foodList ? foodList.split(",") : [];
-  return c.html(<FoodList foodList={[...existing, foodItem]} />);
+  return c.html(<FoodItem food={foodItem} />);
 }
 
 export async function removeFoodItem(c: AppContext) {
-  const { foodList, ...rest } = await c.req.parseBody<{
-    foodList: string;
+  const { food } = await c.req.parseBody<{
+    food: string;
   }>();
-  const existing = foodList ? foodList.split(",") : [];
-  const keys = Object.keys(rest);
-  const toRemove = keys.length ? keys[0] : "";
-  const newItems = existing.filter((food) => food !== toRemove);
-  return c.html(<FoodList foodList={newItems} />);
+  console.log({ food });
+  return c.body(null);
 }

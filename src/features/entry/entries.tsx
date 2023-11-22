@@ -5,6 +5,7 @@ import { moodList } from "../../constants/mood";
 import { activityTable, entryTable } from "../../db/schema";
 import { FC } from "hono/jsx";
 import { SettingsIcon } from "../../shared/Icons";
+import { FOOD_TYPE } from "../../constants/activities";
 
 const EntryCard: FC<{
   id: number;
@@ -17,7 +18,7 @@ const EntryCard: FC<{
     <li>
       <a
         href={`/edit/${id}`}
-        class="group flex cursor-pointer justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200 hover:outline"
+        class="group flex cursor-pointer justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200 hover:cursor-pointer hover:outline"
       >
         <div class=" flex gap-3">
           <div>{Icon && <Icon className="w-14" />}</div>
@@ -57,7 +58,7 @@ export const Entries = async (db: DrizzleD1Database, userId: number) => {
         <a href="/new" class="btn flex w-full justify-center text-center">
           Add Entry +
         </a>
-        <a class="btn" href="settings/categories">
+        <a class="btn" href="/settings/categories">
           <SettingsIcon className="w-6" />
         </a>
       </div>
@@ -68,7 +69,8 @@ export const Entries = async (db: DrizzleD1Database, userId: number) => {
           const activities = rows
             .filter((row) => row.id === entryId)
             .map(({ value }) => value)
-            .filter(Boolean);
+            .filter(Boolean)
+            .filter((activity) => activity !== FOOD_TYPE);
 
           if (!entry) {
             return null;
