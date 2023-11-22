@@ -107,7 +107,15 @@ export const ActivityList: FC<{
   categoryId: string;
 }> = ({ activities = [], categoryId }) => (
   <div class="flex flex-col gap-2" id={ACTIVITY_ID}>
-    <h1 class="text-2xl font-bold">Activity</h1>
+    <div class="flex items-center gap-2">
+      <a
+        href="/settings/categories"
+        class="rounded bg-black px-3 py-1 text-center text-white"
+      >
+        <BackIcon className="w-4" />
+      </a>
+      <h1 class="text-2xl font-bold">Activity</h1>
+    </div>
     {activities.map((activity) => (
       <ActivityCard
         id={activity.id}

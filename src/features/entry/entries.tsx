@@ -5,6 +5,7 @@ import { moodList } from "../../constants/mood";
 import { activityTable, entryTable } from "../../db/schema";
 import { FC } from "hono/jsx";
 import { SettingsIcon } from "../../shared/Icons";
+import { FOOD_TYPE } from "../../constants/activities";
 
 const EntryCard: FC<{
   id: number;
@@ -68,7 +69,8 @@ export const Entries = async (db: DrizzleD1Database, userId: number) => {
           const activities = rows
             .filter((row) => row.id === entryId)
             .map(({ value }) => value)
-            .filter(Boolean);
+            .filter(Boolean)
+            .filter((activity) => activity !== FOOD_TYPE);
 
           if (!entry) {
             return null;

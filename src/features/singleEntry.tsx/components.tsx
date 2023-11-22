@@ -25,35 +25,30 @@ const Button: FC = ({ children, ...props }) => {
   );
 };
 
-export const FoodList: FC<{ foodList?: string[] }> = ({ foodList = [] }) => {
-  return (
-    <div id="food">
-      <input hidden name="foodList" value={foodList.join(",")} />
-      <ul class="flex flex-wrap gap-2 pt-3">
-        {foodList.map((food) => (
-          <li>
-            <input
-              type="checkbox"
-              id={food}
-              name={food}
-              class="peer hidden"
-              hx-delete="/entry/food-item"
-              hx-params={`${food},foodList`}
-              hx-target="#food"
-              hx-swap="outerHTML"
-            />
-            <label
-              for={food}
-              class="flex items-center rounded-md bg-black  px-3 py-1 text-sm text-white hover:cursor-pointer"
-            >
-              {food}
-            </label>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
+const Mood: FC<{ mood: number | undefined; errors: string[] }> = ({
+  mood,
+  errors,
+}) => (
+  <Card>
+    <Heading>Mood</Heading>
+    <ul class="flex justify-center gap-4 pt-3">
+      {moodList.map(({ value, Icon }) => (
+        <li>
+          <IconButton selected={mood === value} value={value}>
+            <Icon />
+          </IconButton>
+        </li>
+      ))}
+    </ul>
+    {errors.includes("mood") ? (
+      <p id="error-mood" class="py-1 text-red-500">
+        Please select your mood.
+      </p>
+    ) : (
+      <span />
+    )}
+  </Card>
+);
 
 const IconButton: FC<{
   value: number;
@@ -83,7 +78,23 @@ const IconButton: FC<{
   );
 };
 
-const NutritionSection: FC<{ foodList?: string[] }> = ({ foodList }) => {
+export const FoodItem: FC<{ food: string }> = ({ food }) => (
+  <li id={`${food}-item-id`}>
+    <button
+      class="flex items-center rounded-md  bg-black px-3 py-1 text-sm text-white hover:cursor-pointer"
+      hx-delete="/entry/food-item"
+      hx-vals={JSON.stringify({ food })}
+      hx-target={`#${food}-item-id`}
+      hx-swap="outerHTML"
+      type="button"
+    >
+      {food}
+    </button>
+    <input hidden name={`food:${food}`} value={food} />
+  </li>
+);
+
+const NutritionSection: FC<{ foodList?: string[] }> = ({ foodList = [] }) => {
   return (
     <Card>
       <Heading>Nutrition</Heading>
@@ -91,15 +102,22 @@ const NutritionSection: FC<{ foodList?: string[] }> = ({ foodList }) => {
         <input
           name="foodItem"
           class="focus-visible: ring-violet-30 mt-3 flex-1 border px-3 py-2"
-          hx-include="[name='foodList']"
           hx-post="/entry/food-item"
-          hx-target="#food"
-          hx-swap="outerHTML"
+          hx-target="#food-list"
+          hx-swap="beforeend"
           hx-trigger="keyup[keyCode==13]"
           _="on htmx:afterRequest set my value to ''"
         />
+        {/* Prevent implicit submission of the form */}
+        <button disabled style="display: none" aria-hidden="true"></button>
       </div>
-      <FoodList foodList={foodList} />
+      <div>
+        <ul id="food-list" class="flex flex-wrap gap-2 pt-3">
+          {foodList.map((food) => (
+            <FoodItem food={food} />
+          ))}
+        </ul>
+      </div>
     </Card>
   );
 };
@@ -123,7 +141,6 @@ export const Entry: FC<{
 }) => {
   return (
     <form class="group flex flex-col gap-6 py-4">
-      {entryId && <input hidden name="entryId" value={entryId} />}
       <div class="flex flex-col gap-2 rounded-md bg-white p-4 shadow-sm shadow-gray-200">
         <label data-hx="date" id="current-date" class="font-bold">
           {toDayOfWeek(date)}
@@ -140,25 +157,7 @@ export const Entry: FC<{
         />
       </div>
       <ul class="flex flex-col gap-4">
-        <Card>
-          <Heading>Mood</Heading>
-          <ul class="flex justify-center gap-4 pt-3">
-            {moodList.map(({ value, Icon }) => (
-              <li>
-                <IconButton selected={mood === value} value={value}>
-                  <Icon />
-                </IconButton>
-              </li>
-            ))}
-          </ul>
-          {errors.includes("mood") ? (
-            <p id="error-mood" class="py-1 text-red-500">
-              Please select your mood.
-            </p>
-          ) : (
-            <span />
-          )}
-        </Card>
+        <Mood mood={mood} errors={errors} />
         {categories.map(([name, options]) => (
           <Card>
             <Heading>{name}</Heading>
@@ -168,7 +167,7 @@ export const Entry: FC<{
                   <input
                     type="checkbox"
                     id={option}
-                    name={option}
+                    name={`activity:${option}`}
                     class="peer hidden"
                     checked={activities.includes(option)}
                   />
@@ -190,7 +189,11 @@ export const Entry: FC<{
           <BackIcon className="w-6" />
         </a>
         {entryId ? (
-          <Button hx-put="/entry" hx-swap="none" hx-validate="true">
+          <Button
+            hx-put={`/entry/${entryId}`}
+            hx-swap="none"
+            hx-validate="true"
+          >
             Update
           </Button>
         ) : (
