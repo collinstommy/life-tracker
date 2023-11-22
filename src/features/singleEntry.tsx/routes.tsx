@@ -26,5 +26,5 @@ entryApi.delete("/entry/food-item", removeFoodItem);
 
 // Crud
 entryApi.post("/entry", createEntry);
-entryApi.put("/entry", updateEntry);
+entryApi.put("/entry/:entryId", updateEntry);
 entryApi.delete("/entry/:entryId", deleteEntry);

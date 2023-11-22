@@ -24,12 +24,16 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 - [x] validation for create entry and edit entry
 - [ ] zod validation
 - [ ] uuid for db primary key
+- [x] use oob swap for deleting items?
+- [ ] migrate to async hono v3
 
 ### Features
 
 #### MVP
-- [ ] settings to add activities
+- [x] settings to add activities
+- [x] animate delete
 - [ ] colors for mood
+- [ ] save food
 - [ ] deploy
 
 #### Later
@@ -37,7 +41,6 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 - [x] delete entry
 - [ ] sort activities by category on entry card
 - [ ] add fitness tracking
-- [ ] food diary
 - [ ] social activities, lunch, dinner, drinking, calling, hangout
 - [ ] hard 75
 - [ ] icons for activities

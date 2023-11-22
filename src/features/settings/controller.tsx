@@ -4,7 +4,9 @@ import { Card } from "../../shared/Card";
 import { Layout } from "../../shared/Layout";
 import { AppContext } from "../../types";
 import {
+  ActivityCard,
   ActivityList,
+  CategoryCard,
   CategoryList,
   CreateActivityForm,
   CreateCategoryForm,
@@ -60,14 +62,13 @@ export async function createCategory(c: AppContext<typeof CATEGORY_PATH>) {
   const { db } = c.var;
   const userId = c.get("user").id;
 
-  const { activityGroup } = await c.req.parseBody<{ activityGroup: string }>();
-  await db.insert(categoryTable).values({ label: activityGroup, userId });
-  const categories = await c.var.db
-    .select()
-    .from(categoryTable)
-    .where(eq(categoryTable.userId, userId));
+  const { label } = await c.req.parseBody<{ label: string }>();
+  const category = await db
+    .insert(categoryTable)
+    .values({ label, userId })
+    .returning();
 
-  return c.html(<CategoryList categories={categories} />);
+  return c.html(<CategoryCard id={category[0].id} label={label} />);
 }
 
 export async function deleteCategory(
@@ -77,14 +78,13 @@ export async function deleteCategory(
   const userId = c.get("user").id;
   const id = c.req.param("id");
 
+  // check for user ownership
+  await db
+    .delete(activitySettingsTable)
+    .where(eq(activitySettingsTable.categoryId, +id));
   await db.delete(categoryTable).where(eq(categoryTable.id, +id));
 
-  const categories = await c.var.db
-    .select()
-    .from(categoryTable)
-    .where(eq(categoryTable.userId, userId));
-
-  return c.html(<CategoryList categories={categories} />);
+  return c.body(null);
 }
 
 export async function createActivity(
@@ -92,20 +92,18 @@ export async function createActivity(
 ) {
   const { db } = c.var;
   const categoryId = c.req.param("id");
-
   const { value } = await c.req.parseBody<{ value: string }>();
-  await db
-    .insert(activitySettingsTable)
-    .values({ value, categoryId: +categoryId });
 
   // ToDo: check if user owns category
-  const activities = await c.var.db
-    .select()
-    .from(activitySettingsTable)
-    .where(eq(activitySettingsTable.categoryId, +categoryId));
+
+  // todo: insert after last activity
+  const created = await db
+    .insert(activitySettingsTable)
+    .values({ value, categoryId: +categoryId })
+    .returning();
 
   return c.html(
-    <ActivityList activities={activities} categoryId={categoryId} />,
+    <ActivityCard id={created[0].id} categoryId={categoryId} value={value} />,
   );
 }
 
@@ -114,18 +112,10 @@ export async function deleteActivity(
 ) {
   const { db } = c.var;
   const activityId = c.req.param("activityId");
-  const categoryId = c.req.param("categoryId");
 
   await db
     .delete(activitySettingsTable)
     .where(eq(activitySettingsTable.id, +activityId));
 
-  const activities = await c.var.db
-    .select()
-    .from(activitySettingsTable)
-    .where(eq(activitySettingsTable.categoryId, +categoryId));
-
-  return c.html(
-    <ActivityList activities={activities} categoryId={categoryId} />,
-  );
+  return c.body(null);
 }
