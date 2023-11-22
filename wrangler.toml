@@ -1,12 +1,11 @@
 name = "d1-tutorial"
 main = "src/index.tsx"
-compatibility_date = "2023-09-18"
+compatibility_date = "2023-11-21"
 
 [site]
 bucket = "./assets"
 
 [[d1_databases]]
 binding = "DB" # i.e. available in your Worker on env.DB
-database_name = "hello-world"
-database_id = "4d478301-53a8-45c3-afc4-e5b41a8831d5"
-
+database_name = "life-tracker"
+database_id = "5f6e7ae7-32da-409c-b179-6365d4d4eb43"

@@ -1,19 +1,24 @@
-https://d1-tutorial.tomascollins.workers.dev/
-
+## Deploy
 Generate migration file
 ```
-npm run db:migrate
+npm run db:generate
 ```
 
 Setup db (run migration)
 ```
-wrangler d1 execute hello-world --local --file=./schema.sql
+wrangler d1 execute life-tracker --file=./drizzle/<migration filename>.sql
 ```
 
 Run sql
 ```
-wrangler d1 execute hello-world --local --command='SELECT * FROM score'
+wrangler d1 execute life-tracker --command='SELECT * FROM score'
 ```
+
+Deploy
+```
+npm run deploy
+```
+
 
 ## ToDo
 
@@ -25,10 +30,14 @@ wrangler d1 execute hello-world --local --command='SELECT * FROM score'
 - [ ] zod validation
 - [ ] uuid for db primary key
 
+### Infra
+- [ ] e2e testing - playwright?
+
 ### Features
 
 #### MVP
-- [ ] settings to add activities
+- [x] settings to add activities
+- [ ] local vars to switch variables
 - [ ] colors for mood
 - [ ] deploy
 

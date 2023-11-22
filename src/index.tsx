@@ -11,6 +11,11 @@ import { settingsApp } from "./features/settings/routes";
 import { serveStatic } from "hono/cloudflare-workers";
 import { setupApp } from "./features/setup";
 
+app.onError((err, c) => {
+  console.error(`${err}`);
+  return c.text("Error", 500);
+});
+
 app.get("/static/*", serveStatic({ root: "./" }));
 
 app.use("*", async (c, next) => {

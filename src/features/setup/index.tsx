@@ -31,6 +31,13 @@ async function addCategory(
   );
 }
 
+export async function setupCategories(userId: number, db: DrizzleD1Database) {
+  const updates = categories.map((category) =>
+    addCategory(db, userId, category),
+  );
+  await Promise.all(updates);
+}
+
 setupApp.get("/setup", async (c) => {
   const user = c.get("user");
   if (!user.isSetup) {
@@ -40,4 +47,5 @@ setupApp.get("/setup", async (c) => {
     );
     await Promise.all(updates);
   }
+  return c.redirect("/");
 });

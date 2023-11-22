@@ -8,6 +8,7 @@ import { eq } from "drizzle-orm";
 import { DrizzleD1Database } from "drizzle-orm/d1";
 import dayjs from "dayjs";
 import { Layout } from "../../shared/Layout";
+import { setupCategories } from "../setup";
 
 export const authApi = new Hono<HonoApp>();
 
@@ -21,7 +22,8 @@ export const Login = () => (
           data-client_id="21946598134-2cdfh6kammv6kjn72pv97p3uk5li9pgg.apps.googleusercontent.com"
           data-context="signin"
           data-ux_mode="popup"
-          data-login_uri="http://localhost:8787/login/google"
+          // data-login_uri="http://localhost:8787/login/google"
+          data-login_uri="https://d1-tutorial.tomascollins.workers.dev/login/google"
           data-itp_support="true"
         ></div>
 
@@ -52,6 +54,7 @@ async function getUser(db: DrizzleD1Database, googleSub: string) {
     .insert(userTable)
     .values({ googleId: googleSub })
     .returning();
+  await setupCategories(newUser[0].id, db);
   return newUser[0];
 }
 
