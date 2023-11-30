@@ -9,37 +9,43 @@ import { DrizzleD1Database } from "drizzle-orm/d1";
 import dayjs from "dayjs";
 import { Layout } from "../../shared/Layout";
 import { setupCategories } from "../setup";
+import { FC } from "hono/jsx";
 
 export const authApi = new Hono<HonoApp>();
 
-export const Login = () => (
-  <Layout
-    head={
-      <>
-        <script src="https://accounts.google.com/gsi/client" async></script>
-        <div
-          id="g_id_onload"
-          data-client_id="21946598134-2cdfh6kammv6kjn72pv97p3uk5li9pgg.apps.googleusercontent.com"
-          data-context="signin"
-          data-ux_mode="popup"
-          // data-login_uri="http://localhost:8787/login/google"
-          data-login_uri="https://d1-tutorial.tomascollins.workers.dev/login/google"
-          data-itp_support="true"
-        ></div>
+export const Login: FC<{ isLocal: boolean }> = ({ isLocal }) => {
+  const loginRedirect = isLocal
+    ? "http://localhost:8787/login/google"
+    : "https://life-tracker.tomascollins.workers.dev/login/google";
 
-        <div
-          class="g_id_signin"
-          data-type="standard"
-          data-shape="rectangular"
-          data-theme="outline"
-          data-text="signin_with"
-          data-size="large"
-          data-logo_alignment="left"
-        ></div>
-      </>
-    }
-  />
-);
+  return (
+    <Layout
+      head={
+        <>
+          <script src="https://accounts.google.com/gsi/client" async></script>
+          <div
+            id="g_id_onload"
+            data-client_id="21946598134-2cdfh6kammv6kjn72pv97p3uk5li9pgg.apps.googleusercontent.com"
+            data-context="signin"
+            data-ux_mode="popup"
+            data-login_uri={loginRedirect}
+            data-itp_support="true"
+          ></div>
+
+          <div
+            class="g_id_signin"
+            data-type="standard"
+            data-shape="rectangular"
+            data-theme="outline"
+            data-text="signin_with"
+            data-size="large"
+            data-logo_alignment="left"
+          ></div>
+        </>
+      }
+    />
+  );
+};
 
 async function getUser(db: DrizzleD1Database, googleSub: string) {
   const user = await db

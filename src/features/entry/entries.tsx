@@ -13,7 +13,7 @@ const EntryCard: FC<{
   mood: number;
   activities: string[];
 }> = ({ mood, date, id, activities }) => {
-  const Icon = moodList.find((m) => mood === m.value)?.Icon;
+  const { Icon, color } = moodList.find((m) => mood === m.value)!;
   return (
     <li>
       <a
@@ -21,7 +21,7 @@ const EntryCard: FC<{
         class="group flex cursor-pointer justify-between rounded-md bg-white p-4 shadow-sm shadow-gray-200 hover:cursor-pointer hover:outline"
       >
         <div class=" flex gap-3">
-          <div>{Icon && <Icon className="w-14" />}</div>
+          <div>{Icon && <Icon className={`w-14 ${color}`} />}</div>
           <div class="flex flex-col">
             <h2 class="text-sm uppercase text-gray-500">{toDayOfWeek(date)}</h2>
             <ul class="flex flex-wrap gap-2 py-2">

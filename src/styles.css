@@ -14,10 +14,10 @@
   .card-container {
     @apply rounded-md bg-white shadow-sm shadow-gray-200;
   }
-
 }
 
 .fade-me-out.htmx-swapping {
   opacity: 0;
   transition: opacity .2s ease-out;
 }
+

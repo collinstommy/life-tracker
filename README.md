@@ -40,10 +40,10 @@ npm run deploy
 #### MVP
 - [x] settings to add activities
 - [ ] local vars to switch variables
+- [x] loading states
 - [x] animate delete
-- [ ] colors for mood
-- [ ] save food
-- [ ] deploy
+- [x] colors for mood
+- [x] save food
 
 #### Later
 - [x] edit existing entry

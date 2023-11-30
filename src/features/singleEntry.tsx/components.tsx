@@ -2,6 +2,7 @@ import { FC } from "hono/jsx";
 import { getCurrentDate, toDayOfWeek } from "../../lib/date";
 import { moodList } from "../../constants/mood";
 import { BackIcon, DeleteIcon } from "../../shared/Icons";
+import clsx from "clsx";
 
 const Heading: FC = ({ children }) => <h2 class="font-semibold">{children}</h2>;
 
@@ -17,10 +18,31 @@ const Button: FC = ({ children, ...props }) => {
   return (
     <button
       type="button"
-      class="flex-1 rounded bg-black px-8 py-2 text-center text-white group-invalid:bg-gray-400"
+      class="group flex flex-1 items-center justify-center rounded bg-black px-8 py-2 text-center text-white group-invalid:bg-gray-400"
       {...props}
     >
-      {children}
+      <svg
+        class="-ml-1 mr-3 hidden h-5 w-5 animate-spin text-white group-[.htmx-request]:block"
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+      >
+        <circle
+          class="opacity-25"
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="currentColor"
+          stroke-width="4"
+        ></circle>
+        <path
+          class="opacity-75"
+          fill="currentColor"
+          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+        ></path>
+      </svg>
+      <div>{children}</div>
+      <div />
     </button>
   );
 };
@@ -32,11 +54,11 @@ const Mood: FC<{ mood: number | undefined; errors: string[] }> = ({
   <Card>
     <Heading>Mood</Heading>
     <ul class="flex justify-center gap-4 pt-3">
-      {moodList.map(({ value, Icon }) => (
+      {moodList.map(({ value, Icon, color, border }) => (
         <li>
-          <IconButton selected={mood === value} value={value}>
-            <Icon />
-          </IconButton>
+          <MoodButton selected={mood === value} value={value} border={border}>
+            <Icon className={clsx(color, "h-10 w-10")} />
+          </MoodButton>
         </li>
       ))}
     </ul>
@@ -50,12 +72,13 @@ const Mood: FC<{ mood: number | undefined; errors: string[] }> = ({
   </Card>
 );
 
-const IconButton: FC<{
+const MoodButton: FC<{
   value: number;
+  border: string;
   selected?: boolean;
-}> = ({ selected, children, value }) => {
+}> = ({ selected, children, value, border }) => {
   return (
-    <div class="h-10 w-10">
+    <div>
       <input
         hx-get="/validate/mood"
         hx-target="#error-mood"
@@ -68,7 +91,10 @@ const IconButton: FC<{
         required
       />
       <label
-        class="text-gray-400 hover:cursor-pointer peer-checked:text-black"
+        class={clsx(
+          "flex rounded p-1 text-gray-400 outline-2 hover:cursor-pointer peer-checked:text-black peer-checked:outline",
+          border,
+        )}
         hx-include="[name='currentDate']"
         for={value}
       >
@@ -81,7 +107,7 @@ const IconButton: FC<{
 export const FoodItem: FC<{ food: string }> = ({ food }) => (
   <li id={`${food}-item-id`}>
     <button
-      class="flex items-center rounded-md  bg-black px-3 py-1 text-sm text-white hover:cursor-pointer"
+      class="outline-5 flex items-center  rounded-md bg-black px-3 py-1 text-sm text-white hover:cursor-pointer"
       hx-delete="/entry/food-item"
       hx-vals={JSON.stringify({ food })}
       hx-target={`#${food}-item-id`}

@@ -65,7 +65,7 @@ app.get("/day/:date", async (c) => {
 });
 
 app.get("/login", (c) => {
-  return c.html(<Login />);
+  return c.html(<Login isLocal={c.env.ENV === "local"} />);
 });
 
 app.route("/", entryApi);

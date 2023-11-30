@@ -7,6 +7,7 @@ type Bindings = {
   GOOGLE_SECRET: string;
   JWT_SECRET: string;
   GOOGLE_CLIENT_ID: string;
+  ENV: string;
 };
 
 export type AppContext<T extends string = ""> = Context<HonoApp, T>;
